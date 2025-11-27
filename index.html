@@ -6,6 +6,7 @@
     <title>Sistema de Inventario - Pizza Hut</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
@@ -1408,16 +1409,172 @@
                 this.currentPage = 1;
                 this.itemsPerPage = 10;
                 this.charts = {};
+                this.supabase = null;
+                this.supabaseConnected = false;
                 
                 this.init();
             }
 
             init() {
+                this.setupSupabase(); // ✅ CONEXIÓN SUPABASE ACTIVA
                 this.loadAllData();
                 this.setupEventListeners();
                 this.checkAuthState();
                 this.setupCharts();
                 this.startRealTimeUpdates();
+            }
+            setupSupabase() {
+                // ✅ CONFIGURACIÓN AUTOMÁTICA DE SUPABASE (OCULTA)
+                const supabaseConfig = {
+                    url: "https://yyjgztcgqpewubnqkrnt.supabase.co",
+                    key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5amd6dGNncXBld3VibnFrcm50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMjM0MzYsImV4cCI6MjA3OTc5OTQzNn0.a1LZUbP5ZJDn9Bd61LGH5e7VLFEbtzsufZAlWBFiaZg"
+                };
+                
+                try {
+                    this.supabase = supabase.createClient(supabaseConfig.url, supabaseConfig.key);
+                    this.supabaseConnected = true;
+                    console.log('✅ Supabase conectado (oculto)');
+                } catch (error) {
+                    console.error('❌ Error conectando Supabase:', error);
+                    this.supabaseConnected = false;
+                }
+            }
+
+            async syncWithSupabase() {
+                if (!this.supabaseConnected) {
+                    console.log('⚠️ Supabase no conectado');
+                    return;
+                }
+
+                try {
+                    // ✅ SINCRONIZAR PRODUCTOS CON SUPABASE
+                    for (const product of this.products) {
+                        const supabaseProduct = {
+                            id: product.id,
+                            name: product.name,
+                            category: product.category,
+                            stock: product.stock,
+                            min_stock: product.minStock,
+                            price: product.price,
+                            supplier: product.supplier,
+                            location: product.location,
+                            description: product.description,
+                            last_updated: product.lastUpdated
+                        };
+                        
+                        const { error } = await this.supabase
+                            .from('products')
+                            .upsert(supabaseProduct, { onConflict: 'id' });
+                        
+                        if (error) {
+                            console.error('Error sincronizando producto:', error);
+                        }
+                    }
+
+                    // ✅ SINCRONIZAR SENSORES CON SUPABASE
+                    for (const sensor of this.sensors) {
+                        const supabaseSensor = {
+                            id: sensor.id,
+                            name: sensor.name,
+                            type: sensor.type,
+                            location: sensor.location,
+                            status: sensor.status,
+                            last_reading: sensor.lastReading,
+                            threshold: sensor.threshold,
+                            description: sensor.description
+                        };
+                        
+                        const { error } = await this.supabase
+                            .from('sensors')
+                            .upsert(supabaseSensor, { onConflict: 'id' });
+                        
+                        if (error) {
+                            console.error('Error sincronizando sensor:', error);
+                        }
+                    }
+
+                    console.log('✅ Datos sincronizados con Supabase (oculto)');
+                } catch (error) {
+                    console.error('❌ Error en sincronización Supabase:', error);
+                }
+            }
+
+            // [LAS DEMÁS FUNCIONES SE MANTIENEN IGUAL...]
+
+            saveProduct() {
+                const formData = {
+                    id: document.getElementById('product-id').value || 'PROD_' + Date.now(),
+                    name: document.getElementById('product-name').value,
+                    category: document.getElementById('product-category').value,
+                    stock: parseInt(document.getElementById('product-stock').value),
+                    minStock: parseInt(document.getElementById('product-min-stock').value),
+                    price: parseFloat(document.getElementById('product-price').value),
+                    supplier: document.getElementById('product-supplier').value,
+                    location: document.getElementById('product-location').value,
+                    description: document.getElementById('product-description').value,
+                    lastUpdated: new Date().toISOString()
+                };
+
+                const existingIndex = this.products.findIndex(p => p.id === formData.id);
+                
+                if (existingIndex >= 0) {
+                    this.products[existingIndex] = formData;
+                    this.showNotification('Producto actualizado exitosamente', 'success');
+                } else {
+                    this.products.push(formData);
+                    this.showNotification('Producto agregado exitosamente', 'success');
+                }
+
+                this.saveProducts();
+                this.filterProducts();
+                document.getElementById('product-modal').style.display = 'none';
+                this.updateDashboard();
+
+                // ✅ SINCRONIZAR AUTOMÁTICAMENTE CON SUPABASE (OCULTO)
+                this.syncWithSupabase();
+            }
+
+            saveSensor() {
+                const formData = {
+                    id: document.getElementById('sensor-id').value || 'SENSOR_' + Date.now(),
+                    name: document.getElementById('sensor-name').value,
+                    type: document.getElementById('sensor-type').value,
+                    location: document.getElementById('sensor-location').value,
+                    threshold: document.getElementById('sensor-threshold').value,
+                    description: document.getElementById('sensor-description').value,
+                    status: 'active',
+                    lastReading: '0.0°C'
+                };
+
+                const existingIndex = this.sensors.findIndex(s => s.id === formData.id);
+                
+                if (existingIndex >= 0) {
+                    this.sensors[existingIndex] = formData;
+                    this.showNotification('Sensor actualizado exitosamente', 'success');
+                } else {
+                    this.sensors.push(formData);
+                    this.showNotification('Sensor agregado exitosamente', 'success');
+                }
+
+                this.saveSensors();
+                this.renderSensors();
+                document.getElementById('sensor-modal').style.display = 'none';
+
+                // ✅ SINCRONIZAR AUTOMÁTICAMENTE CON SUPABASE (OCULTO)
+                this.syncWithSupabase();
+            }
+
+            deleteProduct(productId) {
+                if (confirm('¿Está seguro de que desea eliminar este producto?')) {
+                    this.products = this.products.filter(p => p.id !== productId);
+                    this.saveProducts();
+                    this.filterProducts();
+                    this.showNotification('Producto eliminado exitosamente', 'success');
+                    this.updateDashboard();
+
+                    // ✅ SINCRONIZAR AUTOMÁTICAMENTE CON SUPABASE (OCULTO)
+                    this.syncWithSupabase();
+                    }
             }
 
             loadAllData() {
