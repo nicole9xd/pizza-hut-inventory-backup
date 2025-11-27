@@ -10,6 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
+        /* Tus estilos CSS se mantienen igual */
         :root {
             --primary-red: #D32F2F;
             --primary-dark: #B71C1C;
@@ -1394,7 +1395,7 @@
 
     <script>
         // =============================================
-        // SISTEMA LOCAL SIN NUBE
+        // SISTEMA CON CONEXIÓN SUPABASE CORREGIDA
         // =============================================
 
         class PizzaInventorySystem {
@@ -1415,34 +1416,45 @@
                 this.init();
             }
 
-            init() {
-                this.setupSupabase(); // ✅ CONEXIÓN SUPABASE ACTIVA
+            async init() {
+                await this.setupSupabase(); // ✅ CONEXIÓN SUPABASE CORREGIDA
                 this.loadAllData();
                 this.setupEventListeners();
                 this.checkAuthState();
                 this.setupCharts();
                 this.startRealTimeUpdates();
             }
-            setupSupabase() {
-                // ✅ CONFIGURACIÓN AUTOMÁTICA DE SUPABASE (OCULTA)
-                const supabaseConfig = {
-                    url: "https://yyjgztcgqpewubnqkrnt.supabase.co",
-                    key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5amd6dGNncXBld3VibnFrcm50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMjM0MzYsImV4cCI6MjA3OTc5OTQzNn0.a1LZUbP5ZJDn9Bd61LGH5e7VLFEbtzsufZAlWBFiaZg"
-                };
-                
+
+            async setupSupabase() {
                 try {
-                    this.supabase = supabase.createClient(supabaseConfig.url, supabaseConfig.key);
-                    this.supabaseConnected = true;
-                    console.log('✅ Supabase conectado (oculto)');
+                    // ✅ CONFIGURACIÓN CORREGIDA DE SUPABASE
+                    const supabaseUrl = 'https://yyjgztcgqpewubnqkrnt.supabase.co';
+                    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5amd6dGNncXBld3VibnFrcm50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyMjM0MzYsImV4cCI6MjA3OTc5OTQzNn0.a1LZUbP5ZJDn9Bd61LGH5e7VLFEbtzsufZAlWBFiaZg';
+                    
+                    this.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+                    
+                    // Verificar conexión
+                    const { data, error } = await this.supabase.from('products').select('*').limit(1);
+                    
+                    if (error) {
+                        console.error('❌ Error conectando con Supabase:', error);
+                        this.supabaseConnected = false;
+                        this.showNotification('Error de conexión con la base de datos', 'error');
+                    } else {
+                        this.supabaseConnected = true;
+                        console.log('✅ Supabase conectado correctamente');
+                        this.showNotification('Conexión con base de datos establecida', 'success');
+                    }
                 } catch (error) {
-                    console.error('❌ Error conectando Supabase:', error);
+                    console.error('❌ Error inicializando Supabase:', error);
                     this.supabaseConnected = false;
+                    this.showNotification('Error inicializando la base de datos', 'error');
                 }
             }
 
             async syncWithSupabase() {
                 if (!this.supabaseConnected) {
-                    console.log('⚠️ Supabase no conectado');
+                    console.log('⚠️ Supabase no conectado, sincronización omitida');
                     return;
                 }
 
@@ -1493,88 +1505,61 @@
                         }
                     }
 
-                    console.log('✅ Datos sincronizados con Supabase (oculto)');
+                    console.log('✅ Datos sincronizados con Supabase');
                 } catch (error) {
                     console.error('❌ Error en sincronización Supabase:', error);
                 }
             }
 
-            // [LAS DEMÁS FUNCIONES SE MANTIENEN IGUAL...]
-
-            saveProduct() {
-                const formData = {
-                    id: document.getElementById('product-id').value || 'PROD_' + Date.now(),
-                    name: document.getElementById('product-name').value,
-                    category: document.getElementById('product-category').value,
-                    stock: parseInt(document.getElementById('product-stock').value),
-                    minStock: parseInt(document.getElementById('product-min-stock').value),
-                    price: parseFloat(document.getElementById('product-price').value),
-                    supplier: document.getElementById('product-supplier').value,
-                    location: document.getElementById('product-location').value,
-                    description: document.getElementById('product-description').value,
-                    lastUpdated: new Date().toISOString()
-                };
-
-                const existingIndex = this.products.findIndex(p => p.id === formData.id);
-                
-                if (existingIndex >= 0) {
-                    this.products[existingIndex] = formData;
-                    this.showNotification('Producto actualizado exitosamente', 'success');
-                } else {
-                    this.products.push(formData);
-                    this.showNotification('Producto agregado exitosamente', 'success');
+            async loadFromSupabase() {
+                if (!this.supabaseConnected) {
+                    console.log('⚠️ Supabase no conectado, cargando datos locales');
+                    return;
                 }
 
-                this.saveProducts();
-                this.filterProducts();
-                document.getElementById('product-modal').style.display = 'none';
-                this.updateDashboard();
-
-                // ✅ SINCRONIZAR AUTOMÁTICAMENTE CON SUPABASE (OCULTO)
-                this.syncWithSupabase();
-            }
-
-            saveSensor() {
-                const formData = {
-                    id: document.getElementById('sensor-id').value || 'SENSOR_' + Date.now(),
-                    name: document.getElementById('sensor-name').value,
-                    type: document.getElementById('sensor-type').value,
-                    location: document.getElementById('sensor-location').value,
-                    threshold: document.getElementById('sensor-threshold').value,
-                    description: document.getElementById('sensor-description').value,
-                    status: 'active',
-                    lastReading: '0.0°C'
-                };
-
-                const existingIndex = this.sensors.findIndex(s => s.id === formData.id);
-                
-                if (existingIndex >= 0) {
-                    this.sensors[existingIndex] = formData;
-                    this.showNotification('Sensor actualizado exitosamente', 'success');
-                } else {
-                    this.sensors.push(formData);
-                    this.showNotification('Sensor agregado exitosamente', 'success');
-                }
-
-                this.saveSensors();
-                this.renderSensors();
-                document.getElementById('sensor-modal').style.display = 'none';
-
-                // ✅ SINCRONIZAR AUTOMÁTICAMENTE CON SUPABASE (OCULTO)
-                this.syncWithSupabase();
-            }
-
-            deleteProduct(productId) {
-                if (confirm('¿Está seguro de que desea eliminar este producto?')) {
-                    this.products = this.products.filter(p => p.id !== productId);
-                    this.saveProducts();
-                    this.filterProducts();
-                    this.showNotification('Producto eliminado exitosamente', 'success');
-                    this.updateDashboard();
-
-                    // ✅ SINCRONIZAR AUTOMÁTICAMENTE CON SUPABASE (OCULTO)
-                    this.syncWithSupabase();
+                try {
+                    // ✅ CARGAR PRODUCTOS DESDE SUPABASE
+                    const { data: productsData, error: productsError } = await this.supabase
+                        .from('products')
+                        .select('*');
+                    
+                    if (!productsError && productsData && productsData.length > 0) {
+                        this.products = productsData.map(item => ({
+                            id: item.id,
+                            name: item.name,
+                            category: item.category,
+                            stock: item.stock,
+                            minStock: item.min_stock,
+                            price: item.price,
+                            supplier: item.supplier,
+                            location: item.location,
+                            description: item.description,
+                            lastUpdated: item.last_updated
+                        }));
+                        console.log('✅ Productos cargados desde Supabase:', this.products.length);
                     }
+
+                    // ✅ CARGAR SENSORES DESDE SUPABASE
+                    const { data: sensorsData, error: sensorsError } = await this.supabase
+                        .from('sensors')
+                        .select('*');
+                    
+                    if (!sensorsError && sensorsData && sensorsData.length > 0) {
+                        this.sensors = sensorsData.map(item => ({
+                            id: item.id,
+                            name: item.name,
+                            type: item.type,
+                            location: item.location,
+                            status: item.status,
+                            lastReading: item.last_reading,
+                            threshold: item.threshold,
+                            description: item.description
+                        }));
+                        console.log('✅ Sensores cargados desde Supabase:', this.sensors.length);
+                    }
+                } catch (error) {
+                    console.error('❌ Error cargando datos desde Supabase:', error);
+                }
             }
 
             loadAllData() {
@@ -1591,46 +1576,21 @@
                     this.saveUsers();
                 }
 
-                // Cargar productos
-                const storedProducts = localStorage.getItem('inventory_products');
-                if (storedProducts) {
-                    this.products = JSON.parse(storedProducts);
-                } else {
-                    this.products = [
-                        { id: 'PROD_001', name: 'Harina de Trigo', category: 'ingredientes', stock: 150, minStock: 50, price: 2.50, supplier: 'Molinos San Juan', location: 'Almacén A', description: 'Harina para masa de pizza', lastUpdated: new Date().toISOString() },
-                        { id: 'PROD_002', name: 'Queso Mozzarella', category: 'ingredientes', stock: 25, minStock: 30, price: 8.75, supplier: 'Lácteos Del Valle', location: 'Refrigerador 1', description: 'Queso mozzarella para pizza', lastUpdated: new Date().toISOString() },
-                        { id: 'PROD_003', name: 'Pepperoni', category: 'ingredientes', stock: 15, minStock: 20, price: 12.50, supplier: 'Carnes Selectas', location: 'Refrigerador 2', description: 'Pepperoni en rodajas', lastUpdated: new Date().toISOString() },
-                        { id: 'PROD_004', name: 'Salsa de Tomate', category: 'ingredientes', stock: 40, minStock: 25, price: 3.20, supplier: 'Conservas Naturales', location: 'Almacén B', description: 'Salsa base para pizza', lastUpdated: new Date().toISOString() },
-                        { id: 'PROD_005', name: 'Coca Cola 2L', category: 'bebidas', stock: 0, minStock: 15, price: 5.50, supplier: 'Coca-Cola Company', location: 'Estantería 1', description: 'Refresco de cola 2 litros', lastUpdated: new Date().toISOString() },
-                        { id: 'PROD_006', name: 'Cajas de Pizza', category: 'empaques', stock: 200, minStock: 100, price: 0.80, supplier: 'Empaques Modernos', location: 'Almacén C', description: 'Cajas para pizza tamaño familiar', lastUpdated: new Date().toISOString() },
-                        // Productos adicionales
-                        { id: 'PROD_007', name: 'Aceitunas Negras', category: 'ingredientes', stock: 35, minStock: 20, price: 4.80, supplier: 'Aceitunas Selectas', location: 'Almacén B', description: 'Aceitunas negras deshuesadas', lastUpdated: new Date().toISOString() },
-                        { id: 'PROD_008', name: 'Champiñones Frescos', category: 'ingredientes', stock: 18, minStock: 15, price: 6.25, supplier: 'Verduras Frescas S.A.', location: 'Refrigerador 3', description: 'Champiñones frescos laminados', lastUpdated: new Date().toISOString() },
-                        { id: 'PROD_009', name: 'Pimientos Verdes', category: 'ingredientes', stock: 22, minStock: 12, price: 3.75, supplier: 'Verduras Frescas S.A.', location: 'Refrigerador 3', description: 'Pimientos verdes en tiras', lastUpdated: new Date().toISOString() },
-                        { id: 'PROD_010', name: 'Jamón Cocido', category: 'ingredientes', stock: 28, minStock: 25, price: 9.50, supplier: 'Carnes Selectas', location: 'Refrigerador 2', description: 'Jamón cocido en lonchas', lastUpdated: new Date().toISOString() },
-                        { id: 'PROD_011', name: 'Agua Mineral 500ml', category: 'bebidas', stock: 45, minStock: 30, price: 1.80, supplier: 'Agua Pura', location: 'Estantería 2', description: 'Agua mineral natural', lastUpdated: new Date().toISOString() },
-                        { id: 'PROD_012', name: 'Sprite 2L', category: 'bebidas', stock: 12, minStock: 15, price: 5.20, supplier: 'Coca-Cola Company', location: 'Estantería 1', description: 'Refresco de lima-limón 2 litros', lastUpdated: new Date().toISOString() },
-                        { id: 'PROD_013', name: 'Servilletas', category: 'empaques', stock: 150, minStock: 80, price: 0.15, supplier: 'Papeles y Más', location: 'Almacén C', description: 'Servilletas de papel individuales', lastUpdated: new Date().toISOString() },
-                        { id: 'PROD_014', name: 'Bolsas para Delivery', category: 'empaques', stock: 75, minStock: 50, price: 0.25, supplier: 'Empaques Modernos', location: 'Almacén C', description: 'Bolsas térmicas para delivery', lastUpdated: new Date().toISOString() },
-                        { id: 'PROD_015', name: 'Detergente Líquido', category: 'limpieza', stock: 8, minStock: 5, price: 12.80, supplier: 'Limpieza Total', location: 'Almacén D', description: 'Detergente para limpieza general', lastUpdated: new Date().toISOString() },
-                        { id: 'PROD_016', name: 'Desinfectante', category: 'limpieza', stock: 6, minStock: 5, price: 8.50, supplier: 'Limpieza Total', location: 'Almacén D', description: 'Desinfectante multiusos', lastUpdated: new Date().toISOString() }
-                    ];
-                    this.saveProducts();
-                }
-
-                // Cargar sensores
-                const storedSensors = localStorage.getItem('inventory_sensors');
-                if (storedSensors) {
-                    this.sensors = JSON.parse(storedSensors);
-                } else {
-                    this.sensors = [
-                        { id: 'SENSOR_001', name: 'Sensor de Temperatura - Refrigerador 1', type: 'temperature', location: 'Refrigerador Principal', status: 'active', lastReading: '4.2°C', threshold: '5°C', description: 'Control de temperatura para productos lácteos' },
-                        { id: 'SENSOR_002', name: 'Sensor de Humedad - Almacén A', type: 'humidity', location: 'Área de Harinas', status: 'active', lastReading: '45%', threshold: '50%', description: 'Control de humedad para productos secos' },
-                        { id: 'SENSOR_003', name: 'Sensor Temperatura Congelador', type: 'temperature', location: 'Congelador Principal', status: 'active', lastReading: '-18°C', threshold: '-15°C', description: 'Control temperatura congelador' },
-                        { id: 'SENSOR_004', name: 'Sensor Humedad Almacén', type: 'humidity', location: 'Almacén Principal', status: 'active', lastReading: '55%', threshold: '60%', description: 'Control humedad almacén' }
-                    ];
-                    this.saveSensors();
-                }
+                // Intentar cargar desde Supabase primero
+                this.loadFromSupabase().then(() => {
+                    // Si no hay datos en Supabase, cargar datos locales
+                    if (this.products.length === 0) {
+                        this.loadLocalProducts();
+                    }
+                    if (this.sensors.length === 0) {
+                        this.loadLocalSensors();
+                    }
+                    
+                    this.filteredProducts = [...this.products];
+                    this.renderProducts();
+                    this.renderSensors();
+                    this.updateDashboard();
+                });
 
                 // Cargar alertas
                 const storedAlerts = localStorage.getItem('inventory_alerts');
@@ -1639,8 +1599,39 @@
                 } else {
                     this.alerts = [];
                 }
+            }
 
-                this.filteredProducts = [...this.products];
+            loadLocalProducts() {
+                this.products = [
+                    { id: 'PROD_001', name: 'Harina de Trigo', category: 'ingredientes', stock: 150, minStock: 50, price: 2.50, supplier: 'Molinos San Juan', location: 'Almacén A', description: 'Harina para masa de pizza', lastUpdated: new Date().toISOString() },
+                    { id: 'PROD_002', name: 'Queso Mozzarella', category: 'ingredientes', stock: 25, minStock: 30, price: 8.75, supplier: 'Lácteos Del Valle', location: 'Refrigerador 1', description: 'Queso mozzarella para pizza', lastUpdated: new Date().toISOString() },
+                    { id: 'PROD_003', name: 'Pepperoni', category: 'ingredientes', stock: 15, minStock: 20, price: 12.50, supplier: 'Carnes Selectas', location: 'Refrigerador 2', description: 'Pepperoni en rodajas', lastUpdated: new Date().toISOString() },
+                    { id: 'PROD_004', name: 'Salsa de Tomate', category: 'ingredientes', stock: 40, minStock: 25, price: 3.20, supplier: 'Conservas Naturales', location: 'Almacén B', description: 'Salsa base para pizza', lastUpdated: new Date().toISOString() },
+                    { id: 'PROD_005', name: 'Coca Cola 2L', category: 'bebidas', stock: 0, minStock: 15, price: 5.50, supplier: 'Coca-Cola Company', location: 'Estantería 1', description: 'Refresco de cola 2 litros', lastUpdated: new Date().toISOString() },
+                    { id: 'PROD_006', name: 'Cajas de Pizza', category: 'empaques', stock: 200, minStock: 100, price: 0.80, supplier: 'Empaques Modernos', location: 'Almacén C', description: 'Cajas para pizza tamaño familiar', lastUpdated: new Date().toISOString() },
+                    // Productos adicionales
+                    { id: 'PROD_007', name: 'Aceitunas Negras', category: 'ingredientes', stock: 35, minStock: 20, price: 4.80, supplier: 'Aceitunas Selectas', location: 'Almacén B', description: 'Aceitunas negras deshuesadas', lastUpdated: new Date().toISOString() },
+                    { id: 'PROD_008', name: 'Champiñones Frescos', category: 'ingredientes', stock: 18, minStock: 15, price: 6.25, supplier: 'Verduras Frescas S.A.', location: 'Refrigerador 3', description: 'Champiñones frescos laminados', lastUpdated: new Date().toISOString() },
+                    { id: 'PROD_009', name: 'Pimientos Verdes', category: 'ingredientes', stock: 22, minStock: 12, price: 3.75, supplier: 'Verduras Frescas S.A.', location: 'Refrigerador 3', description: 'Pimientos verdes en tiras', lastUpdated: new Date().toISOString() },
+                    { id: 'PROD_010', name: 'Jamón Cocido', category: 'ingredientes', stock: 28, minStock: 25, price: 9.50, supplier: 'Carnes Selectas', location: 'Refrigerador 2', description: 'Jamón cocido en lonchas', lastUpdated: new Date().toISOString() },
+                    { id: 'PROD_011', name: 'Agua Mineral 500ml', category: 'bebidas', stock: 45, minStock: 30, price: 1.80, supplier: 'Agua Pura', location: 'Estantería 2', description: 'Agua mineral natural', lastUpdated: new Date().toISOString() },
+                    { id: 'PROD_012', name: 'Sprite 2L', category: 'bebidas', stock: 12, minStock: 15, price: 5.20, supplier: 'Coca-Cola Company', location: 'Estantería 1', description: 'Refresco de lima-limón 2 litros', lastUpdated: new Date().toISOString() },
+                    { id: 'PROD_013', name: 'Servilletas', category: 'empaques', stock: 150, minStock: 80, price: 0.15, supplier: 'Papeles y Más', location: 'Almacén C', description: 'Servilletas de papel individuales', lastUpdated: new Date().toISOString() },
+                    { id: 'PROD_014', name: 'Bolsas para Delivery', category: 'empaques', stock: 75, minStock: 50, price: 0.25, supplier: 'Empaques Modernos', location: 'Almacén C', description: 'Bolsas térmicas para delivery', lastUpdated: new Date().toISOString() },
+                    { id: 'PROD_015', name: 'Detergente Líquido', category: 'limpieza', stock: 8, minStock: 5, price: 12.80, supplier: 'Limpieza Total', location: 'Almacén D', description: 'Detergente para limpieza general', lastUpdated: new Date().toISOString() },
+                    { id: 'PROD_016', name: 'Desinfectante', category: 'limpieza', stock: 6, minStock: 5, price: 8.50, supplier: 'Limpieza Total', location: 'Almacén D', description: 'Desinfectante multiusos', lastUpdated: new Date().toISOString() }
+                ];
+                this.saveProducts();
+            }
+
+            loadLocalSensors() {
+                this.sensors = [
+                    { id: 'SENSOR_001', name: 'Sensor de Temperatura - Refrigerador 1', type: 'temperature', location: 'Refrigerador Principal', status: 'active', lastReading: '4.2°C', threshold: '5°C', description: 'Control de temperatura para productos lácteos' },
+                    { id: 'SENSOR_002', name: 'Sensor de Humedad - Almacén A', type: 'humidity', location: 'Área de Harinas', status: 'active', lastReading: '45%', threshold: '50%', description: 'Control de humedad para productos secos' },
+                    { id: 'SENSOR_003', name: 'Sensor Temperatura Congelador', type: 'temperature', location: 'Congelador Principal', status: 'active', lastReading: '-18°C', threshold: '-15°C', description: 'Control temperatura congelador' },
+                    { id: 'SENSOR_004', name: 'Sensor Humedad Almacén', type: 'humidity', location: 'Almacén Principal', status: 'active', lastReading: '55%', threshold: '60%', description: 'Control humedad almacén' }
+                ];
+                this.saveSensors();
             }
 
             saveUsers() {
@@ -2029,97 +2020,58 @@
                 document.getElementById('product-description').value = product.description || '';
             }
 
-            saveProduct() {
-    const formData = {
-        id: document.getElementById('product-id').value || 'PROD_' + Date.now(),
-        name: document.getElementById('product-name').value,
-        category: document.getElementById('product-category').value,
-        stock: parseInt(document.getElementById('product-stock').value),
-        minStock: parseInt(document.getElementById('product-min-stock').value),
-        price: parseFloat(document.getElementById('product-price').value),
-        supplier: document.getElementById('product-supplier').value,
-        location: document.getElementById('product-location').value,
-        description: document.getElementById('product-description').value,
-        lastUpdated: new Date().toISOString()
-    };
+            async saveProduct() {
+                const formData = {
+                    id: document.getElementById('product-id').value || 'PROD_' + Date.now(),
+                    name: document.getElementById('product-name').value,
+                    category: document.getElementById('product-category').value,
+                    stock: parseInt(document.getElementById('product-stock').value),
+                    minStock: parseInt(document.getElementById('product-min-stock').value),
+                    price: parseFloat(document.getElementById('product-price').value),
+                    supplier: document.getElementById('product-supplier').value,
+                    location: document.getElementById('product-location').value,
+                    description: document.getElementById('product-description').value,
+                    lastUpdated: new Date().toISOString()
+                };
 
-    const existingIndex = this.products.findIndex(p => p.id === formData.id);
-    
-    if (existingIndex >= 0) {
-        this.products[existingIndex] = formData;
-        this.showNotification('Producto actualizado exitosamente', 'success');
-    } else {
-        this.products.push(formData);
-        this.showNotification('Producto agregado exitosamente', 'success');
-    }
+                const existingIndex = this.products.findIndex(p => p.id === formData.id);
+                
+                if (existingIndex >= 0) {
+                    this.products[existingIndex] = formData;
+                    this.showNotification('Producto actualizado exitosamente', 'success');
+                } else {
+                    this.products.push(formData);
+                    this.showNotification('Producto agregado exitosamente', 'success');
+                }
 
-    this.saveProducts();
-    this.filterProducts();
-    document.getElementById('product-modal').style.display = 'none';
-    this.updateDashboard();
+                this.saveProducts();
+                this.filterProducts();
+                document.getElementById('product-modal').style.display = 'none';
+                this.updateDashboard();
 
-    // ✅ SINCRONIZAR CON SUPABASE (AGREGAR ESTA LÍNEA)
-    this.syncWithSupabase();
-}
+                // ✅ SINCRONIZAR AUTOMÁTICAMENTE CON SUPABASE
+                await this.syncWithSupabase();
+            }
 
-deleteProduct(productId) {
-    if (confirm('¿Está seguro de que desea eliminar este producto?')) {
-        this.products = this.products.filter(p => p.id !== productId);
-        this.saveProducts();
-        this.filterProducts();
-        this.showNotification('Producto eliminado exitosamente', 'success');
-        this.updateDashboard();
+            editProduct(productId) {
+                const product = this.products.find(p => p.id === productId);
+                if (product) {
+                    this.showProductModal(product);
+                }
+            }
 
-        // ✅ SINCRONIZAR CON SUPABASE (AGREGAR ESTA LÍNEA)
-        this.syncWithSupabase();
-    }
-}
+            async deleteProduct(productId) {
+                if (confirm('¿Está seguro de que desea eliminar este producto?')) {
+                    this.products = this.products.filter(p => p.id !== productId);
+                    this.saveProducts();
+                    this.filterProducts();
+                    this.showNotification('Producto eliminado exitosamente', 'success');
+                    this.updateDashboard();
 
-saveSensor() {
-    const formData = {
-        id: document.getElementById('sensor-id').value || 'SENSOR_' + Date.now(),
-        name: document.getElementById('sensor-name').value,
-        type: document.getElementById('sensor-type').value,
-        location: document.getElementById('sensor-location').value,
-        threshold: document.getElementById('sensor-threshold').value,
-        description: document.getElementById('sensor-description').value,
-        status: 'active',
-        lastReading: '0.0°C'
-    };
-
-    const existingIndex = this.sensors.findIndex(s => s.id === formData.id);
-    
-    if (existingIndex >= 0) {
-        this.sensors[existingIndex] = formData;
-        this.showNotification('Sensor actualizado exitosamente', 'success');
-    } else {
-        this.sensors.push(formData);
-        this.showNotification('Sensor agregado exitosamente', 'success');
-    }
-
-    this.saveSensors();
-    this.renderSensors();
-    document.getElementById('sensor-modal').style.display = 'none';
-
-    // ✅ SINCRONIZAR CON SUPABASE (AGREGAR ESTA LÍNEA)
-    this.syncWithSupabase(){
-    console.log('🔧 Sincronizando con Supabase...');
-    console.log('📦 Productos a sincronizar:', this.products);
-    
-    if (!this.supabaseConnected) {
-        console.log('❌ Supabase no está conectado');
-        return;
-    }
-
-    try {
-        // ... resto del código de sincronización
-        
-        console.log('✅ Sincronización completada');
-    } catch (error) {
-        console.error('❌ Error en sincronización:', error);
-    }
-    }
-}
+                    // ✅ SINCRONIZAR AUTOMÁTICAMENTE CON SUPABASE
+                    await this.syncWithSupabase();
+                }
+            }
 
             // ========== EXPORTACIÓN PDF ==========
             exportDataPDF() {
@@ -2391,7 +2343,7 @@ saveSensor() {
                 document.getElementById('sensor-description').value = sensor.description || '';
             }
 
-            saveSensor() {
+            async saveSensor() {
                 const formData = {
                     id: document.getElementById('sensor-id').value || 'SENSOR_' + Date.now(),
                     name: document.getElementById('sensor-name').value,
@@ -2416,6 +2368,9 @@ saveSensor() {
                 this.saveSensors();
                 this.renderSensors();
                 document.getElementById('sensor-modal').style.display = 'none';
+
+                // ✅ SINCRONIZAR AUTOMÁTICAMENTE CON SUPABASE
+                await this.syncWithSupabase();
             }
 
             editSensor(sensorId) {
@@ -2425,12 +2380,15 @@ saveSensor() {
                 }
             }
 
-            deleteSensor(sensorId) {
+            async deleteSensor(sensorId) {
                 if (confirm('¿Está seguro de que desea eliminar este sensor?')) {
                     this.sensors = this.sensors.filter(s => s.id !== sensorId);
                     this.saveSensors();
                     this.renderSensors();
                     this.showNotification('Sensor eliminado exitosamente', 'success');
+                    
+                    // ✅ SINCRONIZAR AUTOMÁTICAMENTE CON SUPABASE
+                    await this.syncWithSupabase();
                 }
             }
 
