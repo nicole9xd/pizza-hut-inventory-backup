@@ -2030,51 +2030,96 @@
             }
 
             saveProduct() {
-                const formData = {
-                    id: document.getElementById('product-id').value || 'PROD_' + Date.now(),
-                    name: document.getElementById('product-name').value,
-                    category: document.getElementById('product-category').value,
-                    stock: parseInt(document.getElementById('product-stock').value),
-                    minStock: parseInt(document.getElementById('product-min-stock').value),
-                    price: parseFloat(document.getElementById('product-price').value),
-                    supplier: document.getElementById('product-supplier').value,
-                    location: document.getElementById('product-location').value,
-                    description: document.getElementById('product-description').value,
-                    lastUpdated: new Date().toISOString()
-                };
+    const formData = {
+        id: document.getElementById('product-id').value || 'PROD_' + Date.now(),
+        name: document.getElementById('product-name').value,
+        category: document.getElementById('product-category').value,
+        stock: parseInt(document.getElementById('product-stock').value),
+        minStock: parseInt(document.getElementById('product-min-stock').value),
+        price: parseFloat(document.getElementById('product-price').value),
+        supplier: document.getElementById('product-supplier').value,
+        location: document.getElementById('product-location').value,
+        description: document.getElementById('product-description').value,
+        lastUpdated: new Date().toISOString()
+    };
 
-                const existingIndex = this.products.findIndex(p => p.id === formData.id);
-                
-                if (existingIndex >= 0) {
-                    this.products[existingIndex] = formData;
-                    this.showNotification('Producto actualizado exitosamente', 'success');
-                } else {
-                    this.products.push(formData);
-                    this.showNotification('Producto agregado exitosamente', 'success');
-                }
+    const existingIndex = this.products.findIndex(p => p.id === formData.id);
+    
+    if (existingIndex >= 0) {
+        this.products[existingIndex] = formData;
+        this.showNotification('Producto actualizado exitosamente', 'success');
+    } else {
+        this.products.push(formData);
+        this.showNotification('Producto agregado exitosamente', 'success');
+    }
 
-                this.saveProducts();
-                this.filterProducts();
-                document.getElementById('product-modal').style.display = 'none';
-                this.updateDashboard();
-            }
+    this.saveProducts();
+    this.filterProducts();
+    document.getElementById('product-modal').style.display = 'none';
+    this.updateDashboard();
 
-            editProduct(productId) {
-                const product = this.products.find(p => p.id === productId);
-                if (product) {
-                    this.showProductModal(product);
-                }
-            }
+    // ✅ SINCRONIZAR CON SUPABASE (AGREGAR ESTA LÍNEA)
+    this.syncWithSupabase();
+}
 
-            deleteProduct(productId) {
-                if (confirm('¿Está seguro de que desea eliminar este producto?')) {
-                    this.products = this.products.filter(p => p.id !== productId);
-                    this.saveProducts();
-                    this.filterProducts();
-                    this.showNotification('Producto eliminado exitosamente', 'success');
-                    this.updateDashboard();
-                }
-            }
+deleteProduct(productId) {
+    if (confirm('¿Está seguro de que desea eliminar este producto?')) {
+        this.products = this.products.filter(p => p.id !== productId);
+        this.saveProducts();
+        this.filterProducts();
+        this.showNotification('Producto eliminado exitosamente', 'success');
+        this.updateDashboard();
+
+        // ✅ SINCRONIZAR CON SUPABASE (AGREGAR ESTA LÍNEA)
+        this.syncWithSupabase();
+    }
+}
+
+saveSensor() {
+    const formData = {
+        id: document.getElementById('sensor-id').value || 'SENSOR_' + Date.now(),
+        name: document.getElementById('sensor-name').value,
+        type: document.getElementById('sensor-type').value,
+        location: document.getElementById('sensor-location').value,
+        threshold: document.getElementById('sensor-threshold').value,
+        description: document.getElementById('sensor-description').value,
+        status: 'active',
+        lastReading: '0.0°C'
+    };
+
+    const existingIndex = this.sensors.findIndex(s => s.id === formData.id);
+    
+    if (existingIndex >= 0) {
+        this.sensors[existingIndex] = formData;
+        this.showNotification('Sensor actualizado exitosamente', 'success');
+    } else {
+        this.sensors.push(formData);
+        this.showNotification('Sensor agregado exitosamente', 'success');
+    }
+
+    this.saveSensors();
+    this.renderSensors();
+    document.getElementById('sensor-modal').style.display = 'none';
+
+    // ✅ SINCRONIZAR CON SUPABASE (AGREGAR ESTA LÍNEA)
+    this.syncWithSupabase(){
+    console.log('🔧 Sincronizando con Supabase...');
+    console.log('📦 Productos a sincronizar:', this.products);
+    
+    if (!this.supabaseConnected) {
+        console.log('❌ Supabase no está conectado');
+        return;
+    }
+
+    try {
+        // ... resto del código de sincronización
+        
+        console.log('✅ Sincronización completada');
+    } catch (error) {
+        console.error('❌ Error en sincronización:', error);
+    }
+    }
+}
 
             // ========== EXPORTACIÓN PDF ==========
             exportDataPDF() {
