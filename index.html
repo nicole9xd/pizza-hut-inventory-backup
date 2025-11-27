@@ -10,7 +10,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
-        /* Todos tus estilos CSS se mantienen igual */
         :root {
             --primary-red: #D32F2F;
             --primary-dark: #B71C1C;
@@ -106,6 +105,13 @@
             background: white;
             color: var(--text-dark);
             font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .login-form input:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.2);
         }
 
         .btn-login {
@@ -139,9 +145,901 @@
             margin-bottom: 0.5rem;
         }
 
-        /* Header y resto de estilos se mantienen igual... */
-        /* ... (todo el CSS anterior se mantiene igual) ... */
+        /* Header */
+        .header {
+            background: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
 
+        .header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+        }
+
+        .logo i {
+            color: var(--primary-red);
+            font-size: 1.8rem;
+        }
+
+        .nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--text-dark);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--primary-red);
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info span {
+            font-weight: 500;
+            color: var(--primary-dark);
+        }
+
+        .btn-logout {
+            background: var(--primary-red);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-logout:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Main Content */
+        .main {
+            min-height: calc(100vh - 140px);
+            padding: 2rem 0;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section h2 {
+            margin-bottom: 1.5rem;
+            color: var(--primary-dark);
+            font-size: 1.8rem;
+            border-bottom: 3px solid var(--primary-light);
+            padding-bottom: 0.5rem;
+        }
+
+        /* KPI Cards */
+        .kpi-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: var(--transition);
+            border-left: 4px solid var(--primary-red);
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .kpi-icon {
+            font-size: 2.5rem;
+            color: var(--primary-red);
+        }
+
+        .kpi-content h3 {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: #757575;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: bold;
+            display: block;
+            color: var(--primary-dark);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .chart-container h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-dark);
+            font-size: 1.2rem;
+        }
+
+        .alert-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .alert-header h3 {
+            color: var(--primary-dark);
+            font-size: 1.2rem;
+        }
+
+        .alert-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .alert-item {
+            background: #FFF3E0;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--warning);
+            transition: var(--transition);
+        }
+
+        .alert-item:hover {
+            transform: translateX(5px);
+        }
+
+        .alert-item.critical {
+            border-left-color: var(--danger);
+            background: #FFEBEE;
+        }
+
+        .alert-item.info {
+            border-left-color: var(--info);
+            background: #E3F2FD;
+        }
+
+        .alert-item.success {
+            border-left-color: var(--success);
+            background: #E8F5E9;
+        }
+
+        .alert-time {
+            font-size: 0.8rem;
+            color: #757575;
+            float: right;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .quick-actions h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-dark);
+            font-size: 1.2rem;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .btn-action-quick {
+            background: white;
+            color: var(--primary-dark);
+            border: 2px solid var(--primary-light);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+        }
+
+        .btn-action-quick:hover {
+            background: var(--primary-red);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(211, 47, 47, 0.2);
+        }
+
+        .btn-action-quick i {
+            font-size: 1.5rem;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-red), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: bold;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(211, 47, 47, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-dark);
+            border: 2px solid var(--primary-light);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-danger:hover {
+            background: #D32F2F;
+            transform: translateY(-2px);
+        }
+
+        /* Inventory Controls */
+        .inventory-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-bar {
+            display: flex;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #E0E0E0;
+            border-radius: var(--border-radius) 0 0 var(--border-radius);
+            background: white;
+            color: var(--text-dark);
+            transition: var(--transition);
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary-red);
+        }
+
+        .btn-search {
+            background: var(--primary-red);
+            border: 1px solid var(--primary-red);
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            padding: 0 1rem;
+            cursor: pointer;
+            color: white;
+            transition: var(--transition);
+        }
+
+        .btn-search:hover {
+            background: var(--primary-dark);
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .filter-controls select {
+            padding: 0.75rem;
+            border: 1px solid #E0E0E0;
+            border-radius: var(--border-radius);
+            background: white;
+            color: var(--text-dark);
+            transition: var(--transition);
+        }
+
+        .filter-controls select:focus {
+            outline: none;
+            border-color: var(--primary-red);
+        }
+
+        /* Inventory Stats */
+        .inventory-stats {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #757575;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-red);
+        }
+
+        /* Table */
+        .inventory-table-container {
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .inventory-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        .inventory-table th, .inventory-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .inventory-table th {
+            background: #F5F5F5;
+            color: var(--primary-dark);
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+
+        .inventory-table tr:hover {
+            background: rgba(255, 82, 82, 0.05);
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+            text-align: center;
+            min-width: 70px;
+        }
+
+        .status-ok {
+            background: var(--success);
+            color: white;
+        }
+
+        .status-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .status-critical {
+            background: var(--danger);
+            color: white;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-action {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-edit {
+            color: var(--primary-red);
+        }
+
+        .btn-edit:hover {
+            background: var(--primary-red);
+            color: white;
+        }
+
+        .btn-delete {
+            color: var(--danger);
+        }
+
+        .btn-delete:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-pagination {
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-pagination:hover:not(:disabled) {
+            background: var(--primary-dark);
+        }
+
+        .btn-pagination:disabled {
+            background: #E0E0E0;
+            color: #9E9E9E;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            color: var(--text-dark);
+            font-weight: bold;
+        }
+
+        /* Settings Tabs */
+        .settings-tabs {
+            margin-top: 2rem;
+        }
+
+        .tab-buttons {
+            display: flex;
+            border-bottom: 2px solid #E0E0E0;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 1rem 2rem;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+        }
+
+        .tab-btn.active {
+            border-bottom: 3px solid var(--primary-red);
+            color: var(--primary-red);
+        }
+
+        .tab-btn:hover {
+            background: rgba(211, 47, 47, 0.1);
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Sensors Grid */
+        .sensors-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .sensors-header h3 {
+            color: var(--primary-dark);
+            font-size: 1.2rem;
+        }
+
+        .sensors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .sensor-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary-red);
+        }
+
+        .sensor-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .sensor-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .sensor-name {
+            font-weight: bold;
+            color: var(--primary-dark);
+            font-size: 1.1rem;
+        }
+
+        .sensor-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background: var(--success);
+            color: white;
+        }
+
+        .status-inactive {
+            background: var(--warning);
+            color: white;
+        }
+
+        .status-error {
+            background: var(--danger);
+            color: white;
+        }
+
+        .sensor-info {
+            margin-bottom: 1rem;
+        }
+
+        .sensor-info p {
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .sensor-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Forms */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #E0E0E0;
+            border-radius: var(--border-radius);
+            background: white;
+            color: var(--text-dark);
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: var(--text-dark);
+            float: right;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            transition: var(--transition);
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close:hover {
+            color: var(--primary-red);
+            background: rgba(211, 47, 47, 0.1);
+            transform: scale(1.1);
+        }
+
+        /* Notifications */
+        #notifications-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .notification {
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            color: white;
+            box-shadow: var(--box-shadow);
+            animation: slideInRight 0.3s ease;
+            min-width: 300px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .notification.success {
+            background: var(--success);
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+
+        .notification.warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .notification.info {
+            background: var(--info);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--primary-dark);
+            padding: 2rem 0;
+            text-align: center;
+            color: white;
+        }
+
+        .footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        #system-status {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header .container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav ul {
+                gap: 0.5rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .kpi-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .inventory-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-bar {
+                min-width: 100%;
+            }
+            
+            .filter-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .inventory-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .tab-buttons {
+                flex-direction: column;
+            }
+            
+            .tab-btn {
+                text-align: left;
+                border-bottom: 1px solid #E0E0E0;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .sensors-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+                padding: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -151,7 +1049,7 @@
             <div class="login-header">
                 <i class="fas fa-pizza-slice"></i>
                 <h1>Pizza Hut Inventory</h1>
-                <p>Sistema de Gestión Simplificado</p>
+                <p>Sistema de Gestión de Inventario</p>
             </div>
             <form id="login-form" class="login-form">
                 <div class="form-group">
@@ -168,8 +1066,8 @@
             </form>
             <div class="demo-accounts">
                 <p><strong>Cuentas de demostración:</strong></p>
-                <p>📧 admin@pizza.com | 🔑 admin123</p>
-                <p>📧 user@pizza.com | 🔑 user123</p>
+                <p>📧 admin@pizza.com | 🔑 admin123 (Administrador)</p>
+                <p>📧 user@pizza.com | 🔑 user123 (Usuario)</p>
             </div>
         </div>
     </div>
@@ -191,8 +1089,10 @@
                     </ul>
                 </nav>
                 <div class="user-info">
-                    <span id="current-user">Admin</span>
-                    <button class="btn-logout" id="logout-btn"><i class="fas fa-sign-out-alt"></i></button>
+                    <span id="current-user">Administrador</span>
+                    <button class="btn-logout" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Salir
+                    </button>
                 </div>
             </div>
         </header>
@@ -202,7 +1102,7 @@
             <!-- Dashboard Section -->
             <section id="dashboard" class="section active">
                 <div class="container">
-                    <h2>Dashboard de Inventario</h2>
+                    <h2><i class="fas fa-tachometer-alt"></i> Dashboard de Inventario</h2>
                     
                     <!-- KPI Cards -->
                     <div class="kpi-cards">
@@ -250,13 +1150,13 @@
                     <!-- Charts and Data Visualization -->
                     <div class="dashboard-grid">
                         <div class="chart-container">
-                            <h3>Niveles de Stock</h3>
+                            <h3><i class="fas fa-chart-bar"></i> Niveles de Stock</h3>
                             <canvas id="stockChart"></canvas>
                         </div>
                         
                         <div class="alert-container">
                             <div class="alert-header">
-                                <h3>Alertas del Sistema</h3>
+                                <h3><i class="fas fa-bell"></i> Alertas del Sistema</h3>
                                 <button class="btn-secondary" id="clear-alerts">
                                     <i class="fas fa-trash"></i> Limpiar
                                 </button>
@@ -269,7 +1169,7 @@
 
                     <!-- Quick Actions -->
                     <div class="quick-actions">
-                        <h3>Acciones Rápidas</h3>
+                        <h3><i class="fas fa-bolt"></i> Acciones Rápidas</h3>
                         <div class="action-buttons">
                             <button class="btn-action-quick" id="quick-add">
                                 <i class="fas fa-plus"></i>
@@ -279,6 +1179,14 @@
                                 <i class="fas fa-file-pdf"></i>
                                 <span>Generar Reporte</span>
                             </button>
+                            <button class="btn-action-quick" id="quick-sensor">
+                                <i class="fas fa-microchip"></i>
+                                <span>Ver Sensores</span>
+                            </button>
+                            <button class="btn-action-quick" id="quick-stats">
+                                <i class="fas fa-chart-pie"></i>
+                                <span>Estadísticas</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -287,11 +1195,11 @@
             <!-- Inventario Section -->
             <section id="inventario" class="section">
                 <div class="container">
-                    <h2>Gestión de Inventario</h2>
+                    <h2><i class="fas fa-boxes"></i> Gestión de Inventario</h2>
                     
                     <div class="inventory-controls">
                         <div class="search-bar">
-                            <input type="text" id="search-product" placeholder="Buscar producto...">
+                            <input type="text" id="search-product" placeholder="Buscar producto por nombre o ubicación...">
                             <button class="btn-search" id="search-btn"><i class="fas fa-search"></i></button>
                         </div>
                         <div class="filter-controls">
@@ -325,6 +1233,14 @@
                         <div class="stat-item">
                             <span class="stat-label">Valor total:</span>
                             <span class="stat-value" id="total-value">$0.00</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Stock bajo:</span>
+                            <span class="stat-value" id="low-stock-count">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Agotados:</span>
+                            <span class="stat-value" id="out-of-stock-count">0</span>
                         </div>
                     </div>
 
@@ -365,7 +1281,7 @@
             <!-- Configuración Section -->
             <section id="configuracion" class="section">
                 <div class="container">
-                    <h2>Configuración del Sistema</h2>
+                    <h2><i class="fas fa-cog"></i> Configuración del Sistema</h2>
                     
                     <div class="settings-tabs">
                         <div class="tab-buttons">
@@ -377,7 +1293,7 @@
                         <div class="tab-content">
                             <div id="sensors" class="tab-pane active">
                                 <div class="sensors-header">
-                                    <h3>Configuración de Sensores IoT</h3>
+                                    <h3><i class="fas fa-microchip"></i> Configuración de Sensores IoT</h3>
                                     <button class="btn-primary" id="add-sensor-btn">
                                         <i class="fas fa-plus"></i> Agregar Sensor
                                     </button>
@@ -388,39 +1304,47 @@
                             </div>
                             
                             <div id="alerts" class="tab-pane">
-                                <h3>Configuración de Alertas</h3>
+                                <h3><i class="fas fa-bell"></i> Configuración de Alertas</h3>
                                 <div class="alert-settings-form">
-                                    <div class="form-group">
-                                        <label for="alert-stock-min">Stock Mínimo Global:</label>
-                                        <input type="number" id="alert-stock-min" value="10">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="alert-stock-min">Stock Mínimo Global:</label>
+                                            <input type="number" id="alert-stock-min" value="10" min="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="alert-stock-critical">Stock Crítico:</label>
+                                            <input type="number" id="alert-stock-critical" value="5" min="0">
+                                        </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="alert-stock-critical">Stock Crítico:</label>
-                                        <input type="number" id="alert-stock-critical" value="5">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="alert-temperature-max">Temperatura Máxima (°C):</label>
-                                        <input type="number" id="alert-temperature-max" value="8" step="0.1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="alert-temperature-min">Temperatura Mínima (°C):</label>
-                                        <input type="number" id="alert-temperature-min" value="2" step="0.1">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="alert-temperature-max">Temperatura Máxima (°C):</label>
+                                            <input type="number" id="alert-temperature-max" value="8" step="0.1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="alert-temperature-min">Temperatura Mínima (°C):</label>
+                                            <input type="number" id="alert-temperature-min" value="2" step="0.1">
+                                        </div>
                                     </div>
                                     <div class="form-actions">
-                                        <button class="btn-primary" id="save-alert-settings">Guardar Configuración</button>
+                                        <button class="btn-primary" id="save-alert-settings">
+                                            <i class="fas fa-save"></i> Guardar Configuración
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                             
                             <div id="users" class="tab-pane">
-                                <h3>Gestión de Usuarios</h3>
+                                <div class="sensors-header">
+                                    <h3><i class="fas fa-users"></i> Gestión de Usuarios</h3>
+                                    <button class="btn-primary" id="add-user-btn">
+                                        <i class="fas fa-user-plus"></i> Agregar Usuario
+                                    </button>
+                                </div>
                                 <div class="users-management">
                                     <div class="users-list" id="users-list">
                                         <!-- Lista de usuarios -->
                                     </div>
-                                    <button class="btn-primary" id="add-user-btn">
-                                        <i class="fas fa-user-plus"></i> Agregar Usuario
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -433,7 +1357,7 @@
         <footer class="footer">
             <div class="container">
                 <p>&copy; 2024 Sistema de Gestión de Inventario - Pizza Hut</p>
-                <p>Tecnologías IoT | <span id="system-status">Conectado</span></p>
+                <p>Tecnologías IoT | <span id="system-status">Conectado</span> | <span id="connection-status">🟢 En línea</span></p>
             </div>
         </footer>
     </div>
@@ -442,13 +1366,13 @@
     <div id="product-modal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h3 id="modal-product-title">Agregar Nuevo Producto</h3>
+            <h3 id="modal-product-title"><i class="fas fa-box"></i> Agregar Nuevo Producto</h3>
             <form id="product-form">
                 <input type="hidden" id="product-id">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="product-name">Nombre del Producto:</label>
-                        <input type="text" id="product-name" required>
+                        <input type="text" id="product-name" required placeholder="Ej: Queso Mozzarella">
                     </div>
                     <div class="form-group">
                         <label for="product-category">Categoría:</label>
@@ -464,34 +1388,38 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="product-stock">Stock Actual:</label>
-                        <input type="number" id="product-stock" min="0" required>
+                        <input type="number" id="product-stock" min="0" required placeholder="0">
                     </div>
                     <div class="form-group">
                         <label for="product-min-stock">Stock Mínimo:</label>
-                        <input type="number" id="product-min-stock" min="0" required>
+                        <input type="number" id="product-min-stock" min="0" required placeholder="10">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="product-price">Precio Unitario:</label>
-                        <input type="number" id="product-price" min="0" step="0.01" required>
+                        <label for="product-price">Precio Unitario ($):</label>
+                        <input type="number" id="product-price" min="0" step="0.01" required placeholder="0.00">
                     </div>
                     <div class="form-group">
                         <label for="product-supplier">Proveedor:</label>
-                        <input type="text" id="product-supplier">
+                        <input type="text" id="product-supplier" placeholder="Ej: Lácteos Del Valle">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="product-location">Ubicación:</label>
-                    <input type="text" id="product-location" required>
+                    <input type="text" id="product-location" required placeholder="Ej: Refrigerador 1, Almacén A">
                 </div>
                 <div class="form-group">
                     <label for="product-description">Descripción:</label>
-                    <textarea id="product-description" rows="3"></textarea>
+                    <textarea id="product-description" rows="3" placeholder="Descripción del producto..."></textarea>
                 </div>
                 <div class="form-actions">
-                    <button type="submit" class="btn-primary" id="save-product">Guardar</button>
-                    <button type="button" class="btn-secondary" id="cancel-product">Cancelar</button>
+                    <button type="submit" class="btn-primary" id="save-product">
+                        <i class="fas fa-save"></i> Guardar Producto
+                    </button>
+                    <button type="button" class="btn-secondary" id="cancel-product">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
                 </div>
             </form>
         </div>
@@ -500,13 +1428,13 @@
     <div id="sensor-modal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h3 id="modal-sensor-title">Agregar Nuevo Sensor</h3>
+            <h3 id="modal-sensor-title"><i class="fas fa-microchip"></i> Agregar Nuevo Sensor</h3>
             <form id="sensor-form">
                 <input type="hidden" id="sensor-id">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="sensor-name">Nombre del Sensor:</label>
-                        <input type="text" id="sensor-name" required>
+                        <input type="text" id="sensor-name" required placeholder="Ej: Sensor Temperatura Principal">
                     </div>
                     <div class="form-group">
                         <label for="sensor-type">Tipo de Sensor:</label>
@@ -523,20 +1451,24 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="sensor-location">Ubicación:</label>
-                        <input type="text" id="sensor-location" required>
+                        <input type="text" id="sensor-location" required placeholder="Ej: Refrigerador Principal">
                     </div>
                     <div class="form-group">
                         <label for="sensor-threshold">Umbral de Alerta:</label>
-                        <input type="text" id="sensor-threshold" required>
+                        <input type="text" id="sensor-threshold" required placeholder="Ej: 5°C, 50%">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="sensor-description">Descripción:</label>
-                    <textarea id="sensor-description" rows="3"></textarea>
+                    <textarea id="sensor-description" rows="3" placeholder="Descripción del sensor..."></textarea>
                 </div>
                 <div class="form-actions">
-                    <button type="submit" class="btn-primary" id="save-sensor">Guardar</button>
-                    <button type="button" class="btn-secondary" id="cancel-sensor">Cancelar</button>
+                    <button type="submit" class="btn-primary" id="save-sensor">
+                        <i class="fas fa-save"></i> Guardar Sensor
+                    </button>
+                    <button type="button" class="btn-secondary" id="cancel-sensor">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
                 </div>
             </form>
         </div>
@@ -545,13 +1477,13 @@
     <div id="user-modal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h3 id="modal-user-title">Agregar Nuevo Usuario</h3>
+            <h3 id="modal-user-title"><i class="fas fa-user-plus"></i> Agregar Nuevo Usuario</h3>
             <form id="user-form">
                 <input type="hidden" id="user-id">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="user-email">Email:</label>
-                        <input type="email" id="user-email" required>
+                        <input type="email" id="user-email" required placeholder="usuario@pizza.com">
                     </div>
                     <div class="form-group">
                         <label for="user-role">Rol:</label>
@@ -564,11 +1496,19 @@
                 </div>
                 <div class="form-group">
                     <label for="user-password">Contraseña:</label>
-                    <input type="password" id="user-password" required>
+                    <input type="password" id="user-password" required placeholder="Mínimo 6 caracteres">
+                </div>
+                <div class="form-group">
+                    <label for="user-name">Nombre Completo:</label>
+                    <input type="text" id="user-name" required placeholder="Nombre del usuario">
                 </div>
                 <div class="form-actions">
-                    <button type="submit" class="btn-primary" id="save-user">Guardar</button>
-                    <button type="button" class="btn-secondary" id="cancel-user">Cancelar</button>
+                    <button type="submit" class="btn-primary" id="save-user">
+                        <i class="fas fa-save"></i> Guardar Usuario
+                    </button>
+                    <button type="button" class="btn-secondary" id="cancel-user">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
                 </div>
             </form>
         </div>
@@ -579,7 +1519,7 @@
 
     <script>
         // =============================================
-        // SISTEMA CON LOGIN FUNCIONAL
+        // SISTEMA COMPLETO Y FUNCIONAL
         // =============================================
 
         class PizzaInventorySystem {
@@ -597,29 +1537,15 @@
                 this.supabase = null;
                 this.supabaseConnected = false;
                 
-                // Inicialización inmediata
                 this.init();
             }
 
             init() {
-                console.log('🚀 Inicializando sistema...');
-                
-                // Configurar Supabase (pero no bloquear la interfaz)
                 this.setupSupabase();
-                
-                // Cargar datos básicos inmediatamente
-                this.loadBasicData();
-                
-                // Configurar event listeners
+                this.loadAllData();
                 this.setupEventListeners();
-                
-                // Verificar estado de autenticación
                 this.checkAuthState();
-                
-                // Iniciar actualizaciones en tiempo real
                 this.startRealTimeUpdates();
-                
-                console.log('✅ Sistema inicializado correctamente');
             }
 
             setupSupabase() {
@@ -629,46 +1555,79 @@
                     
                     this.supabase = supabase.createClient(supabaseUrl, supabaseKey);
                     this.supabaseConnected = true;
-                    console.log('✅ Supabase configurado');
+                    console.log('✅ Supabase conectado');
                     
-                    // Intentar cargar datos de Supabase en segundo plano
-                    this.loadFromSupabase();
+                    // Verificar conexión
+                    this.testSupabaseConnection();
                 } catch (error) {
-                    console.error('❌ Error configurando Supabase:', error);
+                    console.error('❌ Error conectando Supabase:', error);
                     this.supabaseConnected = false;
+                    document.getElementById('connection-status').textContent = '🔴 Sin conexión';
+                    document.getElementById('connection-status').style.color = '#f44336';
                 }
             }
 
-            loadBasicData() {
-                console.log('📦 Cargando datos básicos...');
-                
-                // Cargar usuarios primero (necesarios para el login)
+            async testSupabaseConnection() {
+                try {
+                    const { data, error } = await this.supabase.from('products').select('count').limit(1);
+                    if (error) throw error;
+                    document.getElementById('connection-status').textContent = '🟢 Conectado a Supabase';
+                    document.getElementById('connection-status').style.color = '#4CAF50';
+                } catch (error) {
+                    console.error('❌ Error probando conexión Supabase:', error);
+                    document.getElementById('connection-status').textContent = '🟡 Conexión limitada';
+                    document.getElementById('connection-status').style.color = '#FF9800';
+                }
+            }
+
+            loadAllData() {
+                // Cargar usuarios
                 const storedUsers = localStorage.getItem('inventory_users');
                 if (storedUsers) {
                     this.users = JSON.parse(storedUsers);
                 } else {
                     this.users = [
-                        { id: 'user_001', email: 'admin@pizza.com', password: 'admin123', role: 'admin', name: 'Administrador Principal' },
-                        { id: 'user_002', email: 'user@pizza.com', password: 'user123', role: 'user', name: 'Usuario General' },
-                        { id: 'user_003', email: 'gerente@pizza.com', password: 'gerente123', role: 'manager', name: 'Gerente' }
+                        { 
+                            id: 'user_001', 
+                            email: 'admin@pizza.com', 
+                            password: 'admin123', 
+                            role: 'admin', 
+                            name: 'Administrador Principal' 
+                        },
+                        { 
+                            id: 'user_002', 
+                            email: 'user@pizza.com', 
+                            password: 'user123', 
+                            role: 'user', 
+                            name: 'Usuario General' 
+                        },
+                        { 
+                            id: 'user_003', 
+                            email: 'gerente@pizza.com', 
+                            password: 'gerente123', 
+                            role: 'manager', 
+                            name: 'Gerente de Sucursal' 
+                        }
                     ];
                     this.saveUsers();
                 }
 
-                // Cargar productos locales como respaldo
+                // Cargar productos
                 const storedProducts = localStorage.getItem('inventory_products');
                 if (storedProducts) {
                     this.products = JSON.parse(storedProducts);
                 } else {
-                    this.loadLocalProducts();
+                    this.products = this.getDefaultProducts();
+                    this.saveProducts();
                 }
 
-                // Cargar sensores locales como respaldo
+                // Cargar sensores
                 const storedSensors = localStorage.getItem('inventory_sensors');
                 if (storedSensors) {
                     this.sensors = JSON.parse(storedSensors);
                 } else {
-                    this.loadLocalSensors();
+                    this.sensors = this.getDefaultSensors();
+                    this.saveSensors();
                 }
 
                 // Cargar alertas
@@ -680,18 +1639,129 @@
                 }
 
                 this.filteredProducts = [...this.products];
-                console.log('✅ Datos básicos cargados');
+                
+                // Cargar desde Supabase si está disponible
+                if (this.supabaseConnected) {
+                    this.loadFromSupabase();
+                }
+            }
+
+            getDefaultProducts() {
+                return [
+                    {
+                        id: 'PROD_001',
+                        name: 'Harina de Trigo',
+                        category: 'ingredientes',
+                        stock: 150,
+                        minStock: 50,
+                        price: 2.50,
+                        supplier: 'Molinos San Juan',
+                        location: 'Almacén A',
+                        description: 'Harina para masa de pizza premium',
+                        lastUpdated: new Date().toISOString()
+                    },
+                    {
+                        id: 'PROD_002',
+                        name: 'Queso Mozzarella',
+                        category: 'ingredientes',
+                        stock: 25,
+                        minStock: 30,
+                        price: 8.75,
+                        supplier: 'Lácteos Del Valle',
+                        location: 'Refrigerador 1',
+                        description: 'Queso mozzarella fresco para pizza',
+                        lastUpdated: new Date().toISOString()
+                    },
+                    {
+                        id: 'PROD_003',
+                        name: 'Pepperoni',
+                        category: 'ingredientes',
+                        stock: 15,
+                        minStock: 20,
+                        price: 12.50,
+                        supplier: 'Carnes Selectas',
+                        location: 'Refrigerador 2',
+                        description: 'Pepperoni en rodajas especial para pizza',
+                        lastUpdated: new Date().toISOString()
+                    },
+                    {
+                        id: 'PROD_004',
+                        name: 'Salsa de Tomate',
+                        category: 'ingredientes',
+                        stock: 40,
+                        minStock: 25,
+                        price: 3.20,
+                        supplier: 'Conservas Naturales',
+                        location: 'Almacén B',
+                        description: 'Salsa base para pizza italiana',
+                        lastUpdated: new Date().toISOString()
+                    },
+                    {
+                        id: 'PROD_005',
+                        name: 'Coca Cola 2L',
+                        category: 'bebidas',
+                        stock: 0,
+                        minStock: 15,
+                        price: 5.50,
+                        supplier: 'Coca-Cola Company',
+                        location: 'Estantería 1',
+                        description: 'Refresco de cola 2 litros',
+                        lastUpdated: new Date().toISOString()
+                    },
+                    {
+                        id: 'PROD_006',
+                        name: 'Cajas de Pizza',
+                        category: 'empaques',
+                        stock: 200,
+                        minStock: 100,
+                        price: 0.80,
+                        supplier: 'Empaques Modernos',
+                        location: 'Almacén C',
+                        description: 'Cajas para pizza tamaño familiar',
+                        lastUpdated: new Date().toISOString()
+                    }
+                ];
+            }
+
+            getDefaultSensors() {
+                return [
+                    {
+                        id: 'SENSOR_001',
+                        name: 'Sensor de Temperatura - Refrigerador 1',
+                        type: 'temperature',
+                        location: 'Refrigerador Principal',
+                        status: 'active',
+                        lastReading: '4.2°C',
+                        threshold: '5°C',
+                        description: 'Control de temperatura para productos lácteos'
+                    },
+                    {
+                        id: 'SENSOR_002',
+                        name: 'Sensor de Humedad - Almacén A',
+                        type: 'humidity',
+                        location: 'Área de Harinas',
+                        status: 'active',
+                        lastReading: '45%',
+                        threshold: '50%',
+                        description: 'Control de humedad para productos secos'
+                    },
+                    {
+                        id: 'SENSOR_003',
+                        name: 'Sensor Temperatura Congelador',
+                        type: 'temperature',
+                        location: 'Congelador Principal',
+                        status: 'active',
+                        lastReading: '-18°C',
+                        threshold: '-15°C',
+                        description: 'Control temperatura congelador productos congelados'
+                    }
+                ];
             }
 
             async loadFromSupabase() {
-                if (!this.supabaseConnected) {
-                    console.log('⚠️ Supabase no disponible, usando datos locales');
-                    return;
-                }
+                if (!this.supabaseConnected) return;
 
                 try {
-                    console.log('🔄 Cargando datos desde Supabase...');
-                    
                     // Cargar productos desde Supabase
                     const { data: productsData, error: productsError } = await this.supabase
                         .from('products')
@@ -711,7 +1781,6 @@
                             lastUpdated: item.last_updated
                         }));
                         this.saveProducts();
-                        console.log(`✅ ${this.products.length} productos cargados desde Supabase`);
                     }
 
                     // Cargar sensores desde Supabase
@@ -731,38 +1800,18 @@
                             description: item.description
                         }));
                         this.saveSensors();
-                        console.log(`✅ ${this.sensors.length} sensores cargados desde Supabase`);
                     }
 
-                    // Actualizar la interfaz si el usuario ya está logueado
+                    this.filteredProducts = [...this.products];
+                    
                     if (this.currentUser) {
                         this.renderProducts();
                         this.renderSensors();
                         this.updateDashboard();
                     }
                 } catch (error) {
-                    console.error('❌ Error cargando datos desde Supabase:', error);
+                    console.error('Error cargando desde Supabase:', error);
                 }
-            }
-
-            loadLocalProducts() {
-                this.products = [
-                    { id: 'PROD_001', name: 'Harina de Trigo', category: 'ingredientes', stock: 150, minStock: 50, price: 2.50, supplier: 'Molinos San Juan', location: 'Almacén A', description: 'Harina para masa de pizza', lastUpdated: new Date().toISOString() },
-                    { id: 'PROD_002', name: 'Queso Mozzarella', category: 'ingredientes', stock: 25, minStock: 30, price: 8.75, supplier: 'Lácteos Del Valle', location: 'Refrigerador 1', description: 'Queso mozzarella para pizza', lastUpdated: new Date().toISOString() },
-                    { id: 'PROD_003', name: 'Pepperoni', category: 'ingredientes', stock: 15, minStock: 20, price: 12.50, supplier: 'Carnes Selectas', location: 'Refrigerador 2', description: 'Pepperoni en rodajas', lastUpdated: new Date().toISOString() },
-                    { id: 'PROD_004', name: 'Salsa de Tomate', category: 'ingredientes', stock: 40, minStock: 25, price: 3.20, supplier: 'Conservas Naturales', location: 'Almacén B', description: 'Salsa base para pizza', lastUpdated: new Date().toISOString() },
-                    { id: 'PROD_005', name: 'Coca Cola 2L', category: 'bebidas', stock: 0, minStock: 15, price: 5.50, supplier: 'Coca-Cola Company', location: 'Estantería 1', description: 'Refresco de cola 2 litros', lastUpdated: new Date().toISOString() },
-                    { id: 'PROD_006', name: 'Cajas de Pizza', category: 'empaques', stock: 200, minStock: 100, price: 0.80, supplier: 'Empaques Modernos', location: 'Almacén C', description: 'Cajas para pizza tamaño familiar', lastUpdated: new Date().toISOString() }
-                ];
-                this.saveProducts();
-            }
-
-            loadLocalSensors() {
-                this.sensors = [
-                    { id: 'SENSOR_001', name: 'Sensor de Temperatura - Refrigerador 1', type: 'temperature', location: 'Refrigerador Principal', status: 'active', lastReading: '4.2°C', threshold: '5°C', description: 'Control de temperatura para productos lácteos' },
-                    { id: 'SENSOR_002', name: 'Sensor de Humedad - Almacén A', type: 'humidity', location: 'Área de Harinas', status: 'active', lastReading: '45%', threshold: '50%', description: 'Control de humedad para productos secos' }
-                ];
-                this.saveSensors();
             }
 
             saveUsers() {
@@ -782,8 +1831,6 @@
             }
 
             setupEventListeners() {
-                console.log('🔧 Configurando event listeners...');
-                
                 // Login
                 document.getElementById('login-form').addEventListener('submit', (e) => {
                     e.preventDefault();
@@ -792,11 +1839,7 @@
 
                 // Logout
                 document.getElementById('logout-btn').addEventListener('click', () => {
-                    if (confirm('¿Está seguro de que desea cerrar sesión?')) {
-                        localStorage.removeItem('currentUser');
-                        localStorage.removeItem('isLoggedIn');
-                        location.reload();
-                    }
+                    this.handleLogout();
                 });
 
                 // Navegación
@@ -815,43 +1858,46 @@
                     });
                 });
 
-                // Inventario - Búsqueda y filtros
-                document.getElementById('search-product').addEventListener('input', (e) => {
+                // Inventario
+                document.getElementById('search-product').addEventListener('input', () => {
                     this.filterProducts();
                 });
-
                 document.getElementById('category-filter').addEventListener('change', () => {
                     this.filterProducts();
                 });
-
                 document.getElementById('status-filter').addEventListener('change', () => {
                     this.filterProducts();
                 });
-
-                // Botones principales
                 document.getElementById('add-product-btn').addEventListener('click', () => {
                     this.showProductModal();
                 });
-
                 document.getElementById('export-data').addEventListener('click', () => {
                     this.exportDataPDF();
-                });
-
-                document.getElementById('add-sensor-btn').addEventListener('click', () => {
-                    this.showSensorModal();
-                });
-
-                document.getElementById('add-user-btn').addEventListener('click', () => {
-                    this.showUserModal();
                 });
 
                 // Acciones rápidas
                 document.getElementById('quick-add').addEventListener('click', () => {
                     this.showProductModal();
                 });
-
                 document.getElementById('quick-report').addEventListener('click', () => {
                     this.generateReportPDF();
+                });
+                document.getElementById('quick-sensor').addEventListener('click', () => {
+                    this.showSection('configuracion');
+                    this.switchTab('sensors');
+                });
+                document.getElementById('quick-stats').addEventListener('click', () => {
+                    this.showSection('dashboard');
+                });
+
+                // Sensores
+                document.getElementById('add-sensor-btn').addEventListener('click', () => {
+                    this.showSensorModal();
+                });
+
+                // Usuarios
+                document.getElementById('add-user-btn').addEventListener('click', () => {
+                    this.showUserModal();
                 });
 
                 // Formularios
@@ -859,12 +1905,10 @@
                     e.preventDefault();
                     this.saveProduct();
                 });
-
                 document.getElementById('sensor-form').addEventListener('submit', (e) => {
                     e.preventDefault();
                     this.saveSensor();
                 });
-
                 document.getElementById('user-form').addEventListener('submit', (e) => {
                     e.preventDefault();
                     this.saveUser();
@@ -879,12 +1923,11 @@
                 document.getElementById('prev-page').addEventListener('click', () => {
                     this.previousPage();
                 });
-
                 document.getElementById('next-page').addEventListener('click', () => {
                     this.nextPage();
                 });
 
-                // Limpiar alertas
+                // Alertas
                 document.getElementById('clear-alerts').addEventListener('click', () => {
                     this.clearAlerts();
                 });
@@ -895,7 +1938,6 @@
                         e.target.closest('.modal').style.display = 'none';
                     });
                 });
-
                 document.querySelectorAll('.modal').forEach(modal => {
                     modal.addEventListener('click', (e) => {
                         if (e.target === modal) {
@@ -908,24 +1950,18 @@
                 document.getElementById('cancel-product').addEventListener('click', () => {
                     document.getElementById('product-modal').style.display = 'none';
                 });
-
                 document.getElementById('cancel-sensor').addEventListener('click', () => {
                     document.getElementById('sensor-modal').style.display = 'none';
                 });
-
                 document.getElementById('cancel-user').addEventListener('click', () => {
                     document.getElementById('user-modal').style.display = 'none';
                 });
-
-                console.log('✅ Event listeners configurados');
             }
 
-            // ========== AUTENTICACIÓN ==========
+            // AUTENTICACIÓN
             handleLogin() {
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('login-password').value;
-                
-                console.log(`🔐 Intentando login con: ${email}`);
                 
                 const user = this.users.find(u => u.email === email && u.password === password);
                 
@@ -933,10 +1969,19 @@
                     this.currentUser = user;
                     localStorage.setItem('currentUser', JSON.stringify(user));
                     localStorage.setItem('isLoggedIn', 'true');
-                    this.showNotification('¡Bienvenido! Sesión iniciada correctamente', 'success');
+                    this.showNotification(`¡Bienvenido ${user.name}!`, 'success');
                     this.showApp();
                 } else {
-                    this.showNotification('Credenciales incorrectas. Use: admin@pizza.com / admin123', 'error');
+                    this.showNotification('Credenciales incorrectas. Use admin@pizza.com / admin123', 'error');
+                }
+            }
+
+            handleLogout() {
+                if (confirm('¿Está seguro de que desea cerrar sesión?')) {
+                    localStorage.removeItem('currentUser');
+                    localStorage.removeItem('isLoggedIn');
+                    this.showNotification('Sesión cerrada correctamente', 'info');
+                    setTimeout(() => location.reload(), 1000);
                 }
             }
 
@@ -946,7 +1991,6 @@
                 
                 if (isLoggedIn && storedUser) {
                     this.currentUser = JSON.parse(storedUser);
-                    console.log(`👤 Usuario autenticado: ${this.currentUser.name}`);
                     this.showApp();
                 } else {
                     this.showLogin();
@@ -956,7 +2000,6 @@
             showLogin() {
                 document.getElementById('login-screen').style.display = 'flex';
                 document.getElementById('app').style.display = 'none';
-                console.log('🔒 Mostrando pantalla de login');
             }
 
             showApp() {
@@ -967,19 +2010,14 @@
                     document.getElementById('current-user').textContent = this.currentUser.name;
                 }
                 
-                // Configurar gráficos después de mostrar la app
                 this.setupCharts();
-                
-                // Actualizar interfaz
                 this.updateDashboard();
                 this.renderProducts();
                 this.renderSensors();
                 this.renderUsers();
-                
-                console.log('🏠 Aplicación mostrada correctamente');
             }
 
-            // ========== NAVEGACIÓN ==========
+            // NAVEGACIÓN
             showSection(sectionId) {
                 document.querySelectorAll('.section').forEach(section => {
                     section.classList.remove('active');
@@ -1019,7 +2057,7 @@
                 document.getElementById(tabId).classList.add('active');
             }
 
-            // ========== INVENTARIO ==========
+            // INVENTARIO
             filterProducts() {
                 const searchTerm = document.getElementById('search-product').value.toLowerCase();
                 const categoryFilter = document.getElementById('category-filter').value;
@@ -1027,7 +2065,8 @@
 
                 this.filteredProducts = this.products.filter(product => {
                     const matchesSearch = product.name.toLowerCase().includes(searchTerm) ||
-                                        product.location.toLowerCase().includes(searchTerm);
+                                        product.location.toLowerCase().includes(searchTerm) ||
+                                        (product.description && product.description.toLowerCase().includes(searchTerm));
                     
                     const matchesCategory = !categoryFilter || product.category === categoryFilter;
                     
@@ -1060,6 +2099,7 @@
                             <td colspan="10" style="text-align: center; padding: 2rem;">
                                 <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 1rem; display: block; color: var(--primary-red);"></i>
                                 <p>No se encontraron productos</p>
+                                <small>Intente con otros términos de búsqueda o filtros</small>
                             </td>
                         </tr>
                     `;
@@ -1072,23 +2112,27 @@
 
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>${product.id}</td>
+                            <td><strong>${product.id}</strong></td>
                             <td>
-                                <strong>${product.name}</strong>
-                                ${product.description ? `<br><small style="color: #757575;">${product.description}</small>` : ''}
+                                <div style="font-weight: bold;">${product.name}</div>
+                                ${product.description ? `<div style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">${product.description}</div>` : ''}
                             </td>
-                            <td>${product.category.charAt(0).toUpperCase() + product.category.slice(1)}</td>
-                            <td>${product.stock}</td>
+                            <td>
+                                <span style="text-transform: capitalize; background: #f0f0f0; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">
+                                    ${product.category}
+                                </span>
+                            </td>
+                            <td><strong>${product.stock}</strong></td>
                             <td>${product.minStock}</td>
                             <td>$${product.price.toFixed(2)}</td>
-                            <td>$${totalValue}</td>
+                            <td><strong>$${totalValue}</strong></td>
                             <td>${product.location}</td>
                             <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                             <td class="table-actions">
-                                <button class="btn-action btn-edit" onclick="system.editProduct('${product.id}')">
+                                <button class="btn-action btn-edit" onclick="system.editProduct('${product.id}')" title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn-action btn-delete" onclick="system.deleteProduct('${product.id}')">
+                                <button class="btn-action btn-delete" onclick="system.deleteProduct('${product.id}')" title="Eliminar">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -1132,9 +2176,13 @@
                 const totalValue = this.filteredProducts.reduce((sum, product) => {
                     return sum + (product.stock * product.price);
                 }, 0);
+                const lowStockCount = this.filteredProducts.filter(p => this.getProductStatus(p) === 'warning').length;
+                const outOfStockCount = this.filteredProducts.filter(p => this.getProductStatus(p) === 'critical').length;
 
                 document.getElementById('total-products-count').textContent = totalProducts;
                 document.getElementById('total-value').textContent = `$${totalValue.toFixed(2)}`;
+                document.getElementById('low-stock-count').textContent = lowStockCount;
+                document.getElementById('out-of-stock-count').textContent = outOfStockCount;
             }
 
             showProductModal(product = null) {
@@ -1142,10 +2190,10 @@
                 const title = document.getElementById('modal-product-title');
                 
                 if (product) {
-                    title.textContent = 'Editar Producto';
+                    title.innerHTML = '<i class="fas fa-edit"></i> Editar Producto';
                     this.fillProductForm(product);
                 } else {
-                    title.textContent = 'Agregar Nuevo Producto';
+                    title.innerHTML = '<i class="fas fa-plus"></i> Agregar Nuevo Producto';
                     document.getElementById('product-form').reset();
                     document.getElementById('product-id').value = '';
                 }
@@ -1194,7 +2242,6 @@
                 document.getElementById('product-modal').style.display = 'none';
                 this.updateDashboard();
 
-                // Sincronizar con Supabase
                 await this.syncWithSupabase();
             }
 
@@ -1213,15 +2260,27 @@
                     this.showNotification('Producto eliminado exitosamente', 'success');
                     this.updateDashboard();
 
-                    // Sincronizar con Supabase
                     await this.syncWithSupabase();
                 }
             }
 
-            // ========== SENSORES ==========
+            // SENSORES
             renderSensors() {
                 const sensorsGrid = document.getElementById('sensors-grid');
                 sensorsGrid.innerHTML = '';
+
+                if (this.sensors.length === 0) {
+                    sensorsGrid.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; grid-column: 1 / -1;">
+                            <i class="fas fa-microchip" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                            <p>No hay sensores configurados</p>
+                            <button class="btn-primary" onclick="system.showSensorModal()">
+                                <i class="fas fa-plus"></i> Agregar Primer Sensor
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
 
                 this.sensors.forEach(sensor => {
                     const sensorCard = document.createElement('div');
@@ -1229,20 +2288,26 @@
                     sensorCard.innerHTML = `
                         <div class="sensor-card-header">
                             <div class="sensor-name">${sensor.name}</div>
-                            <div class="sensor-status status-${sensor.status}">${sensor.status === 'active' ? 'Activo' : 'Inactivo'}</div>
+                            <div class="sensor-status status-${sensor.status}">
+                                ${sensor.status === 'active' ? 'Activo' : 'Inactivo'}
+                            </div>
                         </div>
                         <div class="sensor-info">
-                            <p><strong>Tipo:</strong> ${sensor.type === 'temperature' ? 'Temperatura' : 'Humedad'}</p>
+                            <p><strong>Tipo:</strong> 
+                                <span style="text-transform: capitalize;">${sensor.type}</span>
+                            </p>
                             <p><strong>Ubicación:</strong> ${sensor.location}</p>
-                            <p><strong>Última lectura:</strong> ${sensor.lastReading}</p>
+                            <p><strong>Última lectura:</strong> 
+                                <span style="font-weight: bold; color: ${this.getSensorColor(sensor)}">${sensor.lastReading}</span>
+                            </p>
                             <p><strong>Umbral:</strong> ${sensor.threshold}</p>
                             ${sensor.description ? `<p><strong>Descripción:</strong> ${sensor.description}</p>` : ''}
                         </div>
                         <div class="sensor-actions">
-                            <button class="btn-action btn-edit" onclick="system.editSensor('${sensor.id}')">
+                            <button class="btn-action btn-edit" onclick="system.editSensor('${sensor.id}')" title="Configurar">
                                 <i class="fas fa-cog"></i>
                             </button>
-                            <button class="btn-action btn-delete" onclick="system.deleteSensor('${sensor.id}')">
+                            <button class="btn-action btn-delete" onclick="system.deleteSensor('${sensor.id}')" title="Eliminar">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -1251,15 +2316,25 @@
                 });
             }
 
+            getSensorColor(sensor) {
+                if (sensor.type === 'temperature') {
+                    const temp = parseFloat(sensor.lastReading);
+                    if (temp > 8) return '#f44336';
+                    if (temp < 2) return '#2196F3';
+                    return '#4CAF50';
+                }
+                return '#666';
+            }
+
             showSensorModal(sensor = null) {
                 const modal = document.getElementById('sensor-modal');
                 const title = document.getElementById('modal-sensor-title');
                 
                 if (sensor) {
-                    title.textContent = 'Editar Sensor';
+                    title.innerHTML = '<i class="fas fa-cog"></i> Editar Sensor';
                     this.fillSensorForm(sensor);
                 } else {
-                    title.textContent = 'Agregar Nuevo Sensor';
+                    title.innerHTML = '<i class="fas fa-plus"></i> Agregar Nuevo Sensor';
                     document.getElementById('sensor-form').reset();
                     document.getElementById('sensor-id').value = '';
                 }
@@ -1285,7 +2360,7 @@
                     threshold: document.getElementById('sensor-threshold').value,
                     description: document.getElementById('sensor-description').value,
                     status: 'active',
-                    lastReading: '0.0°C'
+                    lastReading: this.getDefaultSensorReading(document.getElementById('sensor-type').value)
                 };
 
                 const existingIndex = this.sensors.findIndex(s => s.id === formData.id);
@@ -1302,8 +2377,18 @@
                 this.renderSensors();
                 document.getElementById('sensor-modal').style.display = 'none';
 
-                // Sincronizar con Supabase
                 await this.syncWithSupabase();
+            }
+
+            getDefaultSensorReading(type) {
+                switch(type) {
+                    case 'temperature': return '4.2°C';
+                    case 'humidity': return '45%';
+                    case 'motion': return 'Inactivo';
+                    case 'weight': return '0 kg';
+                    case 'proximity': return 'Sin detección';
+                    default: return 'OK';
+                }
             }
 
             editSensor(sensorId) {
@@ -1320,26 +2405,131 @@
                     this.renderSensors();
                     this.showNotification('Sensor eliminado exitosamente', 'success');
                     
-                    // Sincronizar con Supabase
                     await this.syncWithSupabase();
                 }
             }
 
-            // ========== DASHBOARD ==========
+            // USUARIOS
+            renderUsers() {
+                const usersList = document.getElementById('users-list');
+                usersList.innerHTML = '';
+
+                this.users.forEach(user => {
+                    const userCard = document.createElement('div');
+                    userCard.className = 'sensor-card';
+                    userCard.innerHTML = `
+                        <div class="sensor-card-header">
+                            <div class="sensor-name">${user.name}</div>
+                            <div class="sensor-status status-${user.role === 'admin' ? 'active' : 'inactive'}">
+                                ${user.role.toUpperCase()}
+                            </div>
+                        </div>
+                        <div class="sensor-info">
+                            <p><strong>Email:</strong> ${user.email}</p>
+                            <p><strong>Rol:</strong> 
+                                <span style="text-transform: capitalize;">${user.role}</span>
+                            </p>
+                            <p><strong>ID:</strong> ${user.id}</p>
+                        </div>
+                        <div class="sensor-actions">
+                            <button class="btn-action btn-edit" onclick="system.editUser('${user.id}')" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            ${user.role !== 'admin' ? `
+                            <button class="btn-action btn-delete" onclick="system.deleteUser('${user.id}')" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            ` : ''}
+                        </div>
+                    `;
+                    usersList.appendChild(userCard);
+                });
+            }
+
+            showUserModal(user = null) {
+                const modal = document.getElementById('user-modal');
+                const title = document.getElementById('modal-user-title');
+                
+                if (user) {
+                    title.innerHTML = '<i class="fas fa-edit"></i> Editar Usuario';
+                    this.fillUserForm(user);
+                } else {
+                    title.innerHTML = '<i class="fas fa-user-plus"></i> Agregar Nuevo Usuario';
+                    document.getElementById('user-form').reset();
+                    document.getElementById('user-id').value = '';
+                }
+                
+                modal.style.display = 'block';
+            }
+
+            fillUserForm(user) {
+                document.getElementById('user-id').value = user.id;
+                document.getElementById('user-email').value = user.email;
+                document.getElementById('user-role').value = user.role;
+                document.getElementById('user-password').value = '';
+                document.getElementById('user-name').value = user.name;
+            }
+
+            saveUser() {
+                const userData = {
+                    email: document.getElementById('user-email').value,
+                    role: document.getElementById('user-role').value,
+                    password: document.getElementById('user-password').value,
+                    name: document.getElementById('user-name').value
+                };
+
+                const userId = document.getElementById('user-id').value;
+                
+                if (userId) {
+                    const index = this.users.findIndex(u => u.id === userId);
+                    if (index !== -1) {
+                        this.users[index] = { ...this.users[index], ...userData };
+                    }
+                } else {
+                    const newUser = {
+                        id: 'user_' + Date.now(),
+                        ...userData
+                    };
+                    this.users.push(newUser);
+                }
+
+                this.saveUsers();
+                this.showNotification('Usuario guardado exitosamente', 'success');
+                this.renderUsers();
+                document.getElementById('user-modal').style.display = 'none';
+            }
+
+            editUser(userId) {
+                const user = this.users.find(u => u.id === userId);
+                if (user) {
+                    this.showUserModal(user);
+                }
+            }
+
+            deleteUser(userId) {
+                if (confirm('¿Está seguro de que desea eliminar este usuario?')) {
+                    this.users = this.users.filter(u => u.id !== userId);
+                    this.saveUsers();
+                    this.renderUsers();
+                    this.showNotification('Usuario eliminado exitosamente', 'success');
+                }
+            }
+
+            // DASHBOARD
             setupCharts() {
-                // Stock Chart
                 const stockCtx = document.getElementById('stockChart').getContext('2d');
                 this.charts.stock = new Chart(stockCtx, {
                     type: 'line',
                     data: {
                         labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
                         datasets: [{
-                            label: 'Nivel de Stock',
+                            label: 'Nivel de Stock Promedio',
                             data: [65, 59, 80, 81, 56, 55, 40],
                             borderColor: '#D32F2F',
                             backgroundColor: 'rgba(211, 47, 47, 0.1)',
                             tension: 0.4,
-                            fill: true
+                            fill: true,
+                            borderWidth: 2
                         }]
                     },
                     options: {
@@ -1347,7 +2537,19 @@
                         plugins: {
                             legend: {
                                 labels: {
-                                    color: '#212121'
+                                    color: '#212121',
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleFont: {
+                                    size: 12
+                                },
+                                bodyFont: {
+                                    size: 11
                                 }
                             }
                         },
@@ -1358,7 +2560,10 @@
                                     color: 'rgba(0, 0, 0, 0.1)'
                                 },
                                 ticks: {
-                                    color: '#212121'
+                                    color: '#212121',
+                                    font: {
+                                        size: 11
+                                    }
                                 }
                             },
                             x: {
@@ -1366,7 +2571,10 @@
                                     color: 'rgba(0, 0, 0, 0.1)'
                                 },
                                 ticks: {
-                                    color: '#212121'
+                                    color: '#212121',
+                                    font: {
+                                        size: 11
+                                    }
                                 }
                             }
                         }
@@ -1402,8 +2610,8 @@
                     const status = this.getProductStatus(product);
                     if (status === 'critical') {
                         newAlerts.push({
-                            id: 'ALT_' + Date.now(),
-                            title: 'Stock Crítico',
+                            id: 'ALT_' + Date.now() + Math.random(),
+                            title: 'Stock Crítico ⚠️',
                             message: `${product.name} se ha agotado. Reabastecer inmediatamente.`,
                             type: 'critical',
                             time: now.toLocaleTimeString(),
@@ -1411,8 +2619,8 @@
                         });
                     } else if (status === 'warning') {
                         newAlerts.push({
-                            id: 'ALT_' + Date.now(),
-                            title: 'Stock Bajo',
+                            id: 'ALT_' + Date.now() + Math.random(),
+                            title: 'Stock Bajo 📉',
                             message: `${product.name} está por debajo del nivel mínimo (${product.stock}/${product.minStock}).`,
                             type: 'warning',
                             time: now.toLocaleTimeString(),
@@ -1421,9 +2629,23 @@
                     }
                 });
 
+                // Verificar sensores
+                this.sensors.forEach(sensor => {
+                    if (sensor.status !== 'active') {
+                        newAlerts.push({
+                            id: 'ALT_' + Date.now() + Math.random(),
+                            title: 'Sensor Inactivo 🔧',
+                            message: `El sensor ${sensor.name} no está funcionando correctamente.`,
+                            type: 'warning',
+                            time: now.toLocaleTimeString(),
+                            sensorId: sensor.id
+                        });
+                    }
+                });
+
                 // Agregar nuevas alertas
                 newAlerts.forEach(alert => {
-                    if (!this.alerts.find(a => a.message === alert.message)) {
+                    if (!this.alerts.find(a => a.id === alert.id)) {
                         this.alerts.unshift(alert);
                     }
                 });
@@ -1436,6 +2658,17 @@
             renderAlerts() {
                 const alertList = document.getElementById('alert-list');
                 alertList.innerHTML = '';
+
+                if (this.alerts.length === 0) {
+                    alertList.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #666;">
+                            <i class="fas fa-check-circle" style="font-size: 2rem; margin-bottom: 1rem; color: #4CAF50;"></i>
+                            <p>No hay alertas en este momento</p>
+                            <small>Todo está funcionando correctamente</small>
+                        </div>
+                    `;
+                    return;
+                }
 
                 this.alerts.forEach(alert => {
                     const alertItem = document.createElement('div');
@@ -1461,7 +2694,6 @@
             }
 
             updateCharts() {
-                // Simular actualización de datos en tiempo real
                 if (this.charts.stock) {
                     const newData = this.charts.stock.data.datasets[0].data.map(() => 
                         Math.floor(Math.random() * 100)
@@ -1471,11 +2703,22 @@
                 }
             }
 
-            // ========== SINCRONIZACIÓN SUPABASE ==========
+            // CONFIGURACIÓN
+            saveAlertSettings() {
+                const settings = {
+                    alertStockMin: parseInt(document.getElementById('alert-stock-min').value),
+                    alertStockCritical: parseInt(document.getElementById('alert-stock-critical').value),
+                    alertTemperatureMax: parseFloat(document.getElementById('alert-temperature-max').value),
+                    alertTemperatureMin: parseFloat(document.getElementById('alert-temperature-min').value)
+                };
+
+                localStorage.setItem('alert_settings', JSON.stringify(settings));
+                this.showNotification('Configuración de alertas guardada', 'success');
+            }
+
+            // SUPABASE SYNC
             async syncWithSupabase() {
-                if (!this.supabaseConnected) {
-                    return;
-                }
+                if (!this.supabaseConnected) return;
 
                 try {
                     // Sincronizar productos
@@ -1523,23 +2766,21 @@
                             console.error('Error sincronizando sensor:', error);
                         }
                     }
-
-                    console.log('✅ Datos sincronizados con Supabase');
                 } catch (error) {
-                    console.error('❌ Error en sincronización Supabase:', error);
+                    console.error('Error en sincronización Supabase:', error);
                 }
             }
 
-            // ========== UTILIDADES ==========
+            // UTILIDADES
             startRealTimeUpdates() {
-                // Simular actualizaciones en tiempo real
+                // Actualizar dashboard cada 30 segundos
                 setInterval(() => {
                     if (this.currentSection === 'dashboard') {
                         this.updateDashboard();
                     }
                 }, 30000);
 
-                // Simular lecturas de sensores
+                // Simular lecturas de sensores cada 15 segundos
                 setInterval(() => {
                     this.simulateSensorReadings();
                 }, 15000);
@@ -1555,6 +2796,15 @@
                                 break;
                             case 'humidity':
                                 reading = `${(40 + Math.random() * 20).toFixed(0)}%`;
+                                break;
+                            case 'motion':
+                                reading = Math.random() > 0.7 ? 'Movimiento detectado' : 'Inactivo';
+                                break;
+                            case 'weight':
+                                reading = `${(Math.random() * 100).toFixed(1)} kg`;
+                                break;
+                            case 'proximity':
+                                reading = Math.random() > 0.8 ? 'Objeto detectado' : 'Sin detección';
                                 break;
                             default:
                                 reading = 'OK';
@@ -1573,7 +2823,18 @@
                 const container = document.getElementById('notifications-container');
                 const notification = document.createElement('div');
                 notification.className = `notification ${type}`;
-                notification.textContent = message;
+                
+                const icons = {
+                    success: 'fas fa-check-circle',
+                    error: 'fas fa-exclamation-circle',
+                    warning: 'fas fa-exclamation-triangle',
+                    info: 'fas fa-info-circle'
+                };
+                
+                notification.innerHTML = `
+                    <i class="${icons[type] || icons.info}"></i>
+                    <span>${message}</span>
+                `;
                 
                 container.appendChild(notification);
 
@@ -1587,104 +2848,114 @@
                 }, 5000);
             }
 
-            // ========== MÉTODOS FALTANTES ==========
+            // EXPORTACIÓN PDF
             exportDataPDF() {
-                // Implementación simplificada para demo
-                this.showNotification('Funcionalidad de exportación PDF activada', 'success');
-                console.log('Exportando datos a PDF...');
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Título
+                doc.setFontSize(20);
+                doc.setTextColor(40, 40, 40);
+                doc.text('INVENTARIO - PIZZA HUT', 105, 15, { align: 'center' });
+                
+                // Fecha
+                doc.setFontSize(10);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Generado: ${new Date().toLocaleDateString('es-ES')}`, 105, 22, { align: 'center' });
+                
+                // Estadísticas
+                const totalProducts = this.products.length;
+                const totalValue = this.products.reduce((sum, product) => sum + (product.stock * product.price), 0);
+                const lowStock = this.products.filter(p => this.getProductStatus(p) === 'warning').length;
+                const criticalStock = this.products.filter(p => this.getProductStatus(p) === 'critical').length;
+                
+                doc.setFontSize(12);
+                doc.setTextColor(40, 40, 40);
+                doc.text(`Total Productos: ${totalProducts}`, 20, 35);
+                doc.text(`Valor Total: $${totalValue.toFixed(2)}`, 20, 42);
+                doc.text(`Stock Bajo: ${lowStock}`, 20, 49);
+                doc.text(`Stock Crítico: ${criticalStock}`, 20, 56);
+                
+                // Tabla de productos
+                const tableData = this.products.map(product => [
+                    product.id,
+                    product.name,
+                    product.category,
+                    product.stock.toString(),
+                    product.minStock.toString(),
+                    `$${product.price.toFixed(2)}`,
+                    `$${(product.stock * product.price).toFixed(2)}`,
+                    product.location,
+                    this.getProductStatus(product) === 'ok' ? 'OK' : 
+                    this.getProductStatus(product) === 'warning' ? 'Bajo' : 'Crítico'
+                ]);
+                
+                doc.autoTable({
+                    startY: 65,
+                    head: [['ID', 'Producto', 'Categoría', 'Stock', 'Mínimo', 'Precio', 'Valor Total', 'Ubicación', 'Estado']],
+                    body: tableData,
+                    theme: 'grid',
+                    headStyles: {
+                        fillColor: [211, 47, 47],
+                        textColor: 255,
+                        fontStyle: 'bold'
+                    },
+                    alternateRowStyles: {
+                        fillColor: [245, 245, 245]
+                    },
+                    styles: {
+                        fontSize: 8,
+                        cellPadding: 2
+                    }
+                });
+                
+                // Guardar PDF
+                doc.save(`inventario_pizzahut_${new Date().toISOString().split('T')[0]}.pdf`);
+                this.showNotification('Inventario exportado en PDF exitosamente', 'success');
             }
 
             generateReportPDF() {
-                // Implementación simplificada para demo
-                this.showNotification('Generando reporte PDF...', 'success');
-                console.log('Generando reporte PDF...');
-            }
-
-            saveAlertSettings() {
-                this.showNotification('Configuración de alertas guardada', 'success');
-            }
-
-            // Métodos de usuarios (simplificados)
-            renderUsers() {
-                const usersList = document.getElementById('users-list');
-                usersList.innerHTML = '';
-
-                this.users.forEach(user => {
-                    const userCard = document.createElement('div');
-                    userCard.className = 'sensor-card';
-                    userCard.innerHTML = `
-                        <div class="sensor-card-header">
-                            <div class="sensor-name">${user.name}</div>
-                            <div class="sensor-status status-${user.role === 'admin' ? 'active' : 'inactive'}">${user.role}</div>
-                        </div>
-                        <div class="sensor-info">
-                            <p><strong>Email:</strong> ${user.email}</p>
-                            <p><strong>Rol:</strong> ${user.role}</p>
-                        </div>
-                        <div class="sensor-actions">
-                            <button class="btn-action btn-edit" onclick="system.editUser('${user.id}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            ${user.role !== 'admin' ? `
-                            <button class="btn-action btn-delete" onclick="system.deleteUser('${user.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                            ` : ''}
-                        </div>
-                    `;
-                    usersList.appendChild(userCard);
-                });
-            }
-
-            showUserModal(user = null) {
-                const modal = document.getElementById('user-modal');
-                const title = document.getElementById('modal-user-title');
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
                 
-                if (user) {
-                    title.textContent = 'Editar Usuario';
-                    this.fillUserForm(user);
-                } else {
-                    title.textContent = 'Agregar Nuevo Usuario';
-                    document.getElementById('user-form').reset();
-                    document.getElementById('user-id').value = '';
-                }
+                // Título
+                doc.setFontSize(20);
+                doc.setTextColor(40, 40, 40);
+                doc.text('REPORTE DE INVENTARIO - PIZZA HUT', 105, 15, { align: 'center' });
                 
-                modal.style.display = 'block';
-            }
-
-            fillUserForm(user) {
-                document.getElementById('user-id').value = user.id;
-                document.getElementById('user-email').value = user.email;
-                document.getElementById('user-role').value = user.role;
-                document.getElementById('user-password').value = '';
-            }
-
-            saveUser() {
-                this.showNotification('Usuario guardado exitosamente', 'success');
-                document.getElementById('user-modal').style.display = 'none';
-            }
-
-            editUser(userId) {
-                const user = this.users.find(u => u.id === userId);
-                if (user) {
-                    this.showUserModal(user);
-                }
-            }
-
-            deleteUser(userId) {
-                if (confirm('¿Está seguro de que desea eliminar este usuario?')) {
-                    this.showNotification('Usuario eliminado exitosamente', 'success');
-                }
+                // Información del reporte
+                doc.setFontSize(10);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Generado: ${new Date().toLocaleDateString('es-ES')} ${new Date().toLocaleTimeString('es-ES')}`, 105, 22, { align: 'center' });
+                doc.text(`Generado por: ${this.currentUser.name}`, 105, 28, { align: 'center' });
+                
+                // Resumen ejecutivo
+                doc.setFontSize(12);
+                doc.setTextColor(40, 40, 40);
+                doc.text('RESUMEN EJECUTIVO', 20, 45);
+                
+                const totalProducts = this.products.length;
+                const totalValue = this.products.reduce((sum, product) => sum + (product.stock * product.price), 0);
+                const lowStock = this.products.filter(p => this.getProductStatus(p) === 'warning').length;
+                const criticalStock = this.products.filter(p => this.getProductStatus(p) === 'critical').length;
+                
+                doc.setFontSize(10);
+                doc.text(`• Total de productos en inventario: ${totalProducts}`, 25, 55);
+                doc.text(`• Valor total del inventario: $${totalValue.toFixed(2)}`, 25, 62);
+                doc.text(`• Productos con stock bajo: ${lowStock}`, 25, 69);
+                doc.text(`• Productos con stock crítico: ${criticalStock}`, 25, 76);
+                doc.text(`• Sensores IoT activos: ${this.sensors.filter(s => s.status === 'active').length}`, 25, 83);
+                
+                // Guardar PDF
+                doc.save(`reporte_inventario_${new Date().toISOString().split('T')[0]}.pdf`);
+                this.showNotification('Reporte generado en PDF exitosamente', 'success');
             }
         }
 
-        // =============================================
         // INICIALIZACIÓN
-        // =============================================
         let system;
 
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('📄 DOM cargado, iniciando sistema...');
             system = new PizzaInventorySystem();
             window.system = system;
         });
